@@ -38,5 +38,17 @@ func CollectRoute(r *gin.Engine) *gin.Engine {
 	// TODO 设置可见路由
 	r = routes.VisibleRoutes(r)
 
+	// TODO 热点路由
+	r = routes.HotRoutes(r)
+
+	// TODO 历史记录路由
+	r = routes.HistoryRoutes(r)
+
+	// TODO 文本搜索路由
+	r = routes.SearchRoutes(r)
+
+	// TODO 留言板路由
+	r = routes.GuestbookRoutes(r)
+
 	return r
 }
