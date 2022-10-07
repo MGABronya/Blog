@@ -16,7 +16,7 @@ import (
 	gmodel "ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IFileLabelController			定义了文件标签类接口
@@ -43,7 +43,7 @@ func (f FileLabelController) Create(ctx *gin.Context) {
 	var file model.ZipFile
 
 	// TODO 查看文件是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "文件不存在")
 		return
 	}
@@ -56,6 +56,14 @@ func (f FileLabelController) Create(ctx *gin.Context) {
 
 	var requestLabel = vo.LabelRequest{}
 	ctx.Bind(&requestLabel)
+
+	if util.IsS(2, "aL"+fileId, requestLabel.Label) {
+		response.Fail(ctx, nil, "标签已设置")
+		return
+	}
+
+	// TODO 用户标签分数上升
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, 30)
 
 	util.SetS(2, "aL"+fileId, requestLabel.Label)
 	util.SetS(2, "La"+requestLabel.Label, fileId)
@@ -75,12 +83,12 @@ func (f FileLabelController) Show(ctx *gin.Context) {
 	var file model.ZipFile
 
 	// TODO 查看文件是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "文件不存在")
 		return
 	}
 
-	response.Success(ctx, gin.H{"labels": util.GetS(2, "aL"+fileId)}, "查找成功")
+	response.Success(ctx, gin.H{"labels": util.MembersS(2, "aL"+fileId)}, "查找成功")
 }
 
 // @title    Delete
@@ -100,7 +108,7 @@ func (f FileLabelController) Delete(ctx *gin.Context) {
 	ctx.Bind(&requestLabel)
 
 	// TODO 查看文件是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "文件不存在")
 		return
 	}
@@ -109,6 +117,17 @@ func (f FileLabelController) Delete(ctx *gin.Context) {
 	if util.GetH(0, "permission", strconv.Itoa(int(user.ID)))[0] <= '4' && user.ID != file.UserId {
 		response.Fail(ctx, nil, "文件不属于您，请勿非法操作")
 		return
+	}
+
+	if !util.IsS(2, "aL"+fileId, requestLabel.Label) {
+		response.Fail(ctx, nil, "标签未设置")
+		return
+	}
+
+	// TODO 用户标签分数下降
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, -30)
+	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label) <= 0 {
+		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label)
 	}
 
 	util.RemS(2, "aL"+fileId, requestLabel.Label)
