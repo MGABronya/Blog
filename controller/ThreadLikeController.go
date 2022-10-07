@@ -8,13 +8,14 @@ import (
 	Interface "Blog/interface"
 	"Blog/util"
 	"ginEssential/common"
+	gmodel "ginEssential/model"
 	"ginEssential/response"
 	"strconv"
 
 	"ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IThreadLikeController			定义了跟帖点赞类接口
@@ -41,10 +42,28 @@ func (t ThreadLikeController) Create(ctx *gin.Context) {
 	var thread model.Thread
 
 	// TODO 查看跟帖是否存在
-	if t.DB.Where("id = ?", threadId).First(&thread).RecordNotFound() {
+	if t.DB.Where("id = ?", threadId).First(&thread).Error != nil {
 		response.Fail(ctx, nil, "跟帖不存在")
 		return
 	}
+
+	// TODO 查看帖子是否存在
+	var post gmodel.Post
+	if t.DB.Where("id = ?", thread.PostId).First(&post).Error != nil {
+		response.Fail(ctx, nil, "帖子不存在")
+		return
+	}
+
+	// TODO 查看跟帖是否已经点赞
+	if util.IsS(3, "tiL"+threadId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "跟帖已点赞")
+		return
+	}
+
+	util.IncrByZ(3, "H", thread.PostId, 5)
+	util.IncrByZ(3, "TH", threadId, 10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(thread.UserId)), 5)
+	util.IncrByZ(4, "H", strconv.Itoa(int(post.UserId)), 10)
 
 	util.SetS(3, "tiL"+threadId, strconv.Itoa(int(user.ID)))
 
@@ -65,7 +84,7 @@ func (t ThreadLikeController) Show(ctx *gin.Context) {
 	var thread model.Thread
 
 	// TODO 查看跟帖是否存在
-	if t.DB.Where("id = ?", threadId).First(&thread).RecordNotFound() {
+	if t.DB.Where("id = ?", threadId).First(&thread).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
@@ -87,10 +106,28 @@ func (t ThreadLikeController) Delete(ctx *gin.Context) {
 	var thread model.Thread
 
 	// TODO 查看跟帖是否存在
-	if t.DB.Where("id = ?", threadId).First(&thread).RecordNotFound() {
+	if t.DB.Where("id = ?", threadId).First(&thread).Error != nil {
 		response.Fail(ctx, nil, "跟帖不存在")
 		return
 	}
+
+	// TODO 查看帖子是否存在
+	var post gmodel.Post
+	if t.DB.Where("id = ?", thread.PostId).First(&post).Error != nil {
+		response.Fail(ctx, nil, "帖子不存在")
+		return
+	}
+
+	// TODO 查看跟帖是否已经点赞
+	if !util.IsS(3, "tiL"+threadId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "跟帖未点赞")
+		return
+	}
+
+	util.IncrByZ(3, "H", thread.PostId, -5)
+	util.IncrByZ(3, "TH", threadId, -10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(thread.UserId)), -5)
+	util.IncrByZ(4, "H", strconv.Itoa(int(post.UserId)), -10)
 
 	util.RemS(3, "tiL"+threadId, strconv.Itoa(int(user.ID)))
 	response.Success(ctx, nil, "删除成功")
@@ -108,7 +145,7 @@ func (t ThreadLikeController) LikeList(ctx *gin.Context) {
 	var thread model.Thread
 
 	// TODO 查看跟帖是否存在
-	if t.DB.Where("id = ?", threadId).First(&thread).RecordNotFound() {
+	if t.DB.Where("id = ?", threadId).First(&thread).Error != nil {
 		response.Fail(ctx, nil, "跟帖不存在")
 		return
 	}
