@@ -15,7 +15,7 @@ import (
 	"Blog/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IFileLikeController			定义了前端文件点赞类接口
@@ -42,12 +42,27 @@ func (f FileLikeController) Create(ctx *gin.Context) {
 	var file model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
 
+	// TODO 查看是否已经点赞
+	if util.IsS(2, "fiL"+fileId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "前端文件已点赞")
+		return
+	}
+
+	util.IncrByZ(2, "H", fileId, 10)
+	util.IncrByZ(2, "H", strconv.Itoa(int(file.UserId)), 10)
+
 	util.SetS(2, "fiL"+fileId, strconv.Itoa(int(user.ID)))
+
+	// TODO 用户标签分数上升
+	labels := util.MembersS(2, "aL"+file.ID.String())
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, 10)
+	}
 
 	response.Success(ctx, nil, "点赞成功")
 }
@@ -66,7 +81,7 @@ func (f FileLikeController) Show(ctx *gin.Context) {
 	var file model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -88,9 +103,27 @@ func (f FileLikeController) Delete(ctx *gin.Context) {
 	var file model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
+	}
+
+	// TODO 查看是否已经点赞
+	if !util.IsS(2, "fiL"+fileId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "前端文件未点赞")
+		return
+	}
+
+	util.IncrByZ(2, "H", fileId, -10)
+	util.IncrByZ(2, "H", strconv.Itoa(int(file.UserId)), -10)
+
+	// TODO 用户标签分数下降
+	labels := util.MembersS(2, "aL"+file.ID.String())
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, -10)
+		if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), label) <= 0 {
+			util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), label)
+		}
 	}
 
 	util.RemS(2, "fiL"+fileId, strconv.Itoa(int(user.ID)))
@@ -108,9 +141,9 @@ func (f FileLikeController) LikeList(ctx *gin.Context) {
 
 	var file model.ZipFile
 
-	// TODO 查看跟帖是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
-		response.Fail(ctx, nil, "跟帖不存在")
+	// TODO 查看前端文件是否存在
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
+		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
 
