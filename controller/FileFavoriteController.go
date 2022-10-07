@@ -15,7 +15,7 @@ import (
 	gmodel "ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IFileFavoriteController			定义了前端文件收藏类接口
@@ -42,13 +42,27 @@ func (f FileFavoriteController) Create(ctx *gin.Context) {
 	var file model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
 
+	// TODO 查看是否已经收藏
+	if util.IsS(2, "aF"+fileId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "前端文件已收藏")
+		return
+	}
+
+	util.IncrByZ(2, "H", fileId, 50)
+	util.IncrByZ(2, "H", strconv.Itoa(int(file.UserId)), 50)
 	util.SetS(2, "aF"+fileId, strconv.Itoa(int(user.ID)))
 	util.SetS(2, "Fa"+strconv.Itoa(int(user.ID)), fileId)
+
+	// TODO 用户标签分数上升
+	labels := util.MembersS(2, "aL"+file.ID.String())
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, 50)
+	}
 
 	response.Success(ctx, nil, "收藏成功")
 }
@@ -67,7 +81,7 @@ func (f FileFavoriteController) Show(ctx *gin.Context) {
 	var file model.ZipFile
 
 	// TODO 查看文章是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -89,13 +103,32 @@ func (f FileFavoriteController) Delete(ctx *gin.Context) {
 	var file model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
 
+	// TODO 查看是否已经收藏
+	if !util.IsS(2, "aF"+fileId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "前端文件未收藏")
+		return
+	}
+
+	util.IncrByZ(2, "H", fileId, -50)
+	util.IncrByZ(2, "H", strconv.Itoa(int(file.UserId)), -50)
+
 	util.RemS(2, "aF"+fileId, strconv.Itoa(int(user.ID)))
 	util.RemS(2, "Fa"+strconv.Itoa(int(user.ID)), fileId)
+
+	// TODO 用户标签分数下降
+	labels := util.MembersS(2, "aL"+file.ID.String())
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, -50)
+		if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), label) <= 0 {
+			util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), label)
+		}
+	}
+
 	response.Success(ctx, nil, "删除成功")
 }
 
@@ -111,7 +144,7 @@ func (f FileFavoriteController) FavoriteList(ctx *gin.Context) {
 	var file model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if f.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
