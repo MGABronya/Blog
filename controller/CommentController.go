@@ -16,7 +16,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // ICommentController			定义了评论类接口
@@ -49,24 +49,27 @@ func (c CommentController) Create(ctx *gin.Context) {
 
 	var file model.ZipFile
 
+	fileId := ctx.Params.ByName("id")
+
 	// TODO 查看前端文件是否存在
-	if c.DB.Where("id = ?", ctx.Params.ByName("id")).First(&file).RecordNotFound() {
+	if c.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
 
 	// TODO 获取登录用户
-	user, _ := ctx.Get("user")
+	tuser, _ := ctx.Get("user")
+	user := tuser.(gmodel.User)
 
-	if !util.ZipfileComment(strconv.Itoa(int(user.(gmodel.User).ID)), file.ID.String(), strconv.Itoa(int(file.UserId))) {
+	if !util.ZipfileComment(strconv.Itoa(int(user.ID)), file.ID.String(), strconv.Itoa(int(file.UserId))) {
 		response.Fail(ctx, nil, "权限不足，不可评论")
 		return
 	}
 
-	// TODO 创建Thread
+	// TODO 创建Comment
 	comment := model.Comment{
-		UserId:   user.(gmodel.User).ID,
-		FileId:   ctx.Params.ByName("id"),
+		UserId:   user.ID,
+		FileId:   fileId,
 		Content:  requestComment.Content,
 		ResLong:  requestComment.ResLong,
 		ResShort: requestComment.ResShort,
@@ -75,6 +78,22 @@ func (c CommentController) Create(ctx *gin.Context) {
 	// TODO 插入数据
 	if err := c.DB.Create(&comment).Error; err != nil {
 		panic(err)
+	}
+
+	// TODO 更新热度
+	if !util.IsS(2, "M"+comment.FileId, strconv.Itoa(int(user.ID))) {
+		util.SetS(2, "M"+comment.FileId, strconv.Itoa(int(user.ID)))
+	}
+
+	util.AddZ(2, "CH", comment.ID.String(), 20)
+	util.IncrByZ(4, "H", strconv.Itoa(int(user.ID)), 20)
+	util.IncrByZ(2, "H", fileId, 10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(file.UserId)), 10)
+
+	// TODO 用户标签分数上升
+	labels := util.MembersS(2, "aL"+fileId)
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, 5)
 	}
 
 	// TODO 成功
@@ -103,7 +122,7 @@ func (c CommentController) Update(ctx *gin.Context) {
 	fileId := ctx.Params.ByName("id")
 
 	var file model.ZipFile
-	if c.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if c.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -115,8 +134,8 @@ func (c CommentController) Update(ctx *gin.Context) {
 	}
 
 	var comment model.Comment
-	// TODO 更新帖子
-	if err := c.DB.Model(&comment).Update(requestComment).Error; err != nil {
+	// TODO 更新评论
+	if err := c.DB.Model(&comment).Updates(requestComment).Error; err != nil {
 		response.Fail(ctx, nil, "更新失败")
 		return
 	}
@@ -135,7 +154,7 @@ func (c CommentController) Show(ctx *gin.Context) {
 
 	var comment model.Comment
 	// TODO 查看评论是否存在
-	if c.DB.Where("id = ?", commentId).First(&comment).RecordNotFound() {
+	if c.DB.Where("id = ?", commentId).First(&comment).Error != nil {
 		response.Fail(ctx, nil, "评论不存在")
 		return
 	}
@@ -162,7 +181,7 @@ func (c CommentController) Delete(ctx *gin.Context) {
 	commentId := ctx.Params.ByName("id")
 
 	var comment model.Comment
-	if c.DB.Where("id = ?", commentId).First(&comment).RecordNotFound() {
+	if c.DB.Where("id = ?", commentId).First(&comment).Error != nil {
 		response.Fail(ctx, nil, "评论不存在")
 		return
 	}
@@ -172,11 +191,27 @@ func (c CommentController) Delete(ctx *gin.Context) {
 		return
 	}
 
-	// TODO 删除评论
-	c.DB.Delete(&comment)
+	var file model.ZipFile
+	if c.DB.Where("id = ?", comment.FileId).First(&file).Error != nil {
+		response.Fail(ctx, nil, "前端文件不存在")
+		return
+	}
 
-	// TODO 移除点赞
-	util.Del(2, "ciL"+comment.ID.String())
+	// TODO 更新热度
+	util.IncrByZ(4, "H", strconv.Itoa(int(file.UserId)), -util.ScoreZ(2, "CH", commentId)*0.5)
+
+	// TODO 用户标签分数下降
+	labels := util.MembersS(2, "aL"+file.ID.String())
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(userId)), label, -5)
+		if util.ScoreZ(4, "L"+strconv.Itoa(int(userId)), label) <= 0 {
+			util.RemZ(4, "L"+strconv.Itoa(int(userId)), label)
+		}
+	}
+
+	// TODO 删除评论
+	DeleteCommentHot(&comment)
+	c.DB.Delete(comment)
 
 	response.Success(ctx, nil, "删除成功")
 }
@@ -197,7 +232,7 @@ func (c CommentController) PageList(ctx *gin.Context) {
 	var file model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if c.DB.Where("id = ?", fileId).First(&file).RecordNotFound() {
+	if c.DB.Where("id = ?", fileId).First(&file).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -217,7 +252,7 @@ func (c CommentController) PageList(ctx *gin.Context) {
 	c.DB.Where("file_id = ?", fileId).Order("created_at desc").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&comments)
 
 	// TODO 记录的总条数
-	var total int
+	var total int64
 	c.DB.Model(model.Comment{}).Count(&total)
 
 	// TODO 返回数据
@@ -242,7 +277,7 @@ func (c CommentController) PageListMine(ctx *gin.Context) {
 	c.DB.Where("user_id = ?", user.ID).Order("created_at desc").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&comments)
 
 	// TODO 记录的总条数
-	var total int
+	var total int64
 	c.DB.Where("user_id = ?", user.ID).Model(model.Comment{}).Count(&total)
 
 	// TODO 返回数据
@@ -265,7 +300,7 @@ func (c CommentController) PageListOthers(ctx *gin.Context) {
 	userId := ctx.Params.ByName("id")
 
 	// TODO 查看用户是否存在
-	if c.DB.Where("id = ?", ctx.Params.ByName("id")).First(&gmodel.User{}).RecordNotFound() {
+	if c.DB.Where("id = ?", ctx.Params.ByName("id")).First(&gmodel.User{}).Error != nil {
 		response.Fail(ctx, nil, "用户不存在")
 		return
 	}
@@ -285,7 +320,7 @@ func (c CommentController) PageListOthers(ctx *gin.Context) {
 	c.DB.Table("comments").Joins("join zip_files on comments.file_id = zip_files.id").Where("zip_files.user_id = ? and zip_files.visible < ?", user.ID, level).Order("created_at desc").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&comments)
 
 	// TODO 记录的总条数
-	var total int
+	var total int64
 	c.DB.Table("comments").Joins("join zip_files on comments.file_id = zip_files.id").Where("zip_files.user_id = ? and zip_files.visible < ?", user.ID, level).Model(model.Comment{}).Count(&total)
 
 	// TODO 返回数据
@@ -301,4 +336,23 @@ func NewCommentController() ICommentController {
 	db := common.GetDB()
 	db.AutoMigrate(model.Comment{})
 	return CommentController{DB: db}
+}
+
+// @title    DeleteCommentHot
+// @description   移除指定comment的热度
+// @auth      MGAronya（张健）       2022-9-16 12:15
+// @param    commentpoint *model.Comment      接收一个comment
+// @return   void
+func DeleteCommentHot(commentpoint *model.Comment) {
+
+	comment := *commentpoint
+
+	// TODO 移除点赞
+	util.Del(2, "ciL"+comment.ID.String())
+
+	// TODO 更新热度
+	util.IncrByZ(2, "H", comment.FileId, -util.ScoreZ(2, "CH", comment.ID.String())*0.5)
+	util.IncrByZ(4, "H", strconv.Itoa(int(comment.UserId)), -util.ScoreZ(2, "CH", comment.ID.String()))
+
+	util.RemZ(2, "CH", comment.ID.String())
 }
