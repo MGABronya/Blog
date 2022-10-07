@@ -8,13 +8,14 @@ import (
 	Interface "Blog/interface"
 	"Blog/util"
 	"ginEssential/common"
+	gmodel "ginEssential/model"
 	"ginEssential/response"
 	"strconv"
 
 	"ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IThreadFavoriteController			定义了跟帖收藏类接口
@@ -41,10 +42,28 @@ func (t ThreadFavoriteController) Create(ctx *gin.Context) {
 	var thread model.Thread
 
 	// TODO 查看跟帖是否存在
-	if t.DB.Where("id = ?", threadId).First(&thread).RecordNotFound() {
+	if t.DB.Where("id = ?", threadId).First(&thread).Error != nil {
 		response.Fail(ctx, nil, "跟帖不存在")
 		return
 	}
+
+	// TODO 查看帖子是否存在
+	var post gmodel.Post
+	if t.DB.Where("id = ?", thread.PostId).First(&post).Error != nil {
+		response.Fail(ctx, nil, "帖子不存在")
+		return
+	}
+
+	// TODO 查看跟帖是否已经收藏
+	if util.IsS(3, "taF"+threadId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "跟帖已收藏")
+		return
+	}
+
+	util.IncrByZ(3, "H", thread.PostId, 25)
+	util.IncrByZ(3, "TH", threadId, 50)
+	util.IncrByZ(4, "H", strconv.Itoa(int(thread.UserId)), 25)
+	util.IncrByZ(4, "H", strconv.Itoa(int(post.UserId)), 50)
 
 	util.SetS(3, "taF"+threadId, strconv.Itoa(int(user.ID)))
 	util.SetS(3, "tFa"+strconv.Itoa(int(user.ID)), threadId)
@@ -66,7 +85,7 @@ func (p ThreadFavoriteController) Show(ctx *gin.Context) {
 	var thread model.Thread
 
 	// TODO 查看跟帖是否存在
-	if p.DB.Where("id = ?", threadId).First(&thread).RecordNotFound() {
+	if p.DB.Where("id = ?", threadId).First(&thread).Error != nil {
 		response.Fail(ctx, nil, "跟帖不存在")
 		return
 	}
@@ -88,10 +107,28 @@ func (t ThreadFavoriteController) Delete(ctx *gin.Context) {
 	var thread model.Thread
 
 	// TODO 查看跟帖是否存在
-	if t.DB.Where("id = ?", threadId).First(&thread).RecordNotFound() {
+	if t.DB.Where("id = ?", threadId).First(&thread).Error != nil {
 		response.Fail(ctx, nil, "跟帖不存在")
 		return
 	}
+
+	// TODO 查看帖子是否存在
+	var post gmodel.Post
+	if t.DB.Where("id = ?", thread.PostId).First(&post).Error != nil {
+		response.Fail(ctx, nil, "帖子不存在")
+		return
+	}
+
+	// TODO 查看跟帖是否已经收藏
+	if !util.IsS(3, "taF"+threadId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "跟帖未收藏")
+		return
+	}
+
+	util.IncrByZ(3, "H", thread.PostId, -25)
+	util.IncrByZ(3, "TH", threadId, -50)
+	util.IncrByZ(4, "H", strconv.Itoa(int(thread.UserId)), -25)
+	util.IncrByZ(4, "H", strconv.Itoa(int(post.UserId)), -50)
 
 	util.RemS(3, "taF"+threadId, strconv.Itoa(int(user.ID)))
 	util.RemS(3, "tFa"+strconv.Itoa(int(user.ID)), threadId)
@@ -110,7 +147,7 @@ func (t ThreadFavoriteController) FavoriteList(ctx *gin.Context) {
 	var thread model.Thread
 
 	// TODO 查看跟帖是否存在
-	if t.DB.Where("id = ?", threadId).First(&thread).RecordNotFound() {
+	if t.DB.Where("id = ?", threadId).First(&thread).Error != nil {
 		response.Fail(ctx, nil, "跟帖不存在")
 		return
 	}
