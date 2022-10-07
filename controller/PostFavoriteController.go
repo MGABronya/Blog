@@ -14,7 +14,7 @@ import (
 	"ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IPostFavoriteController			定义了帖子收藏类接口
@@ -41,13 +41,29 @@ func (p PostFavoriteController) Create(ctx *gin.Context) {
 	var post model.Post
 
 	// TODO 查看文章是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
 
+	// TODO 查看帖子是否已经收藏
+	if util.IsS(3, "paF"+postId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "帖子已收藏")
+		return
+	}
+
+	// TODO 热度上升
+	util.IncrByZ(3, "H", postId, 50)
+	util.IncrByZ(4, "H", strconv.Itoa(int(post.UserId)), 50)
+
 	util.SetS(3, "paF"+postId, strconv.Itoa(int(user.ID)))
 	util.SetS(3, "pFa"+strconv.Itoa(int(user.ID)), postId)
+
+	// TODO 用户标签分数上升
+	labels := util.MembersS(3, "aL"+post.ID.String())
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, 50)
+	}
 
 	response.Success(ctx, nil, "收藏成功")
 }
@@ -66,7 +82,7 @@ func (p PostFavoriteController) Show(ctx *gin.Context) {
 	var post model.Post
 
 	// TODO 查看帖子是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
@@ -88,13 +104,33 @@ func (p PostFavoriteController) Delete(ctx *gin.Context) {
 	var post model.Post
 
 	// TODO 查看帖子是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
 
+	// TODO 查看帖子是否已经收藏
+	if !util.IsS(3, "paF"+postId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "帖子未收藏")
+		return
+	}
+
+	// TODO 热度下降
+	util.IncrByZ(3, "H", postId, -50)
+	util.IncrByZ(4, "H", strconv.Itoa(int(post.UserId)), -50)
+
 	util.RemS(3, "paF"+postId, strconv.Itoa(int(user.ID)))
 	util.RemS(3, "pFa"+strconv.Itoa(int(user.ID)), postId)
+
+	// TODO 用户标签分数下降
+	labels := util.MembersS(3, "aL"+post.ID.String())
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, -50)
+		if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), label) <= 0 {
+			util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), label)
+		}
+	}
+
 	response.Success(ctx, nil, "删除成功")
 }
 
@@ -110,7 +146,7 @@ func (p PostFavoriteController) FavoriteList(ctx *gin.Context) {
 	var post model.Post
 
 	// TODO 查看帖子是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
