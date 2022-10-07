@@ -14,7 +14,7 @@ import (
 	"ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IArticleFavoriteController			定义了文章收藏类接口
@@ -41,13 +41,29 @@ func (a ArticleFavoriteController) Create(ctx *gin.Context) {
 	var article model.Article
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
+		return
+	}
+
+	// TODO 查看文章是否已经收藏
+	if util.IsS(1, "aF"+articleId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "文章已收藏")
 		return
 	}
 
 	util.SetS(1, "aF"+articleId, strconv.Itoa(int(user.ID)))
 	util.SetS(1, "Fa"+strconv.Itoa(int(user.ID)), articleId)
+
+	// TODO 热度提升
+	util.IncrByZ(1, "H", articleId, 50)
+	util.IncrByZ(4, "H", strconv.Itoa(int(article.UserId)), 50)
+
+	// TODO 用户标签分数提升
+	labels := util.MembersS(1, "aL"+articleId)
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, 50)
+	}
 
 	response.Success(ctx, nil, "收藏成功")
 }
@@ -66,7 +82,7 @@ func (a ArticleFavoriteController) Show(ctx *gin.Context) {
 	var article model.Article
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
 	}
@@ -88,13 +104,33 @@ func (a ArticleFavoriteController) Delete(ctx *gin.Context) {
 	var article model.Article
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
+		return
+	}
+
+	// TODO 查看文章是否已经收藏
+	if !util.IsS(1, "aF"+articleId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "文章未收藏")
 		return
 	}
 
 	util.RemS(1, "aF"+articleId, strconv.Itoa(int(user.ID)))
 	util.RemS(1, "Fa"+strconv.Itoa(int(user.ID)), articleId)
+
+	// TODO 热度下降
+	util.IncrByZ(1, "H", articleId, -50)
+	util.IncrByZ(4, "H", strconv.Itoa(int(article.UserId)), -50)
+
+	// TODO 用户标签分数下降
+	labels := util.MembersS(1, "aL"+articleId)
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, -50)
+		if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), label) <= 0 {
+			util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), label)
+		}
+	}
+
 	response.Success(ctx, nil, "删除成功")
 }
 
@@ -110,7 +146,7 @@ func (a ArticleFavoriteController) FavoriteList(ctx *gin.Context) {
 	var article model.Article
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
 	}
