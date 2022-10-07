@@ -15,7 +15,7 @@ import (
 	gmodel "ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // ICommentLikeController			定义了评论点赞类接口
@@ -42,12 +42,30 @@ func (c CommentLikeController) Create(ctx *gin.Context) {
 	var comment model.Comment
 
 	// TODO 查看评论是否存在
-	if c.DB.Where("id = ?", commentId).First(&comment).RecordNotFound() {
+	if c.DB.Where("id = ?", commentId).First(&comment).Error != nil {
 		response.Fail(ctx, nil, "评论不存在")
 		return
 	}
 
+	// TODO 查看前端文件是否存在
+	var file model.ZipFile
+	if c.DB.Where("id = ?", comment.FileId).First(&file).Error != nil {
+		response.Fail(ctx, nil, "前端文件不存在")
+		return
+	}
+
+	// TODO 查看评论是否已经点赞
+	if util.IsS(2, "ciL"+commentId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "评论已点赞")
+		return
+	}
+
 	util.SetS(2, "ciL"+commentId, strconv.Itoa(int(user.ID)))
+
+	util.IncrByZ(2, "H", comment.FileId, 5)
+	util.IncrByZ(2, "CH", commentId, 10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(comment.UserId)), 10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(file.UserId)), 5)
 
 	response.Success(ctx, nil, "点赞成功")
 }
@@ -66,7 +84,7 @@ func (c CommentLikeController) Show(ctx *gin.Context) {
 	var comment model.Comment
 
 	// TODO 查看评论是否存在
-	if c.DB.Where("id = ?", commentId).First(&comment).RecordNotFound() {
+	if c.DB.Where("id = ?", commentId).First(&comment).Error != nil {
 		response.Fail(ctx, nil, "评论不存在")
 		return
 	}
@@ -88,12 +106,31 @@ func (c CommentLikeController) Delete(ctx *gin.Context) {
 	var comment model.Comment
 
 	// TODO 查看评论是否存在
-	if c.DB.Where("id = ?", commentId).First(&comment).RecordNotFound() {
+	if c.DB.Where("id = ?", commentId).First(&comment).Error != nil {
 		response.Fail(ctx, nil, "评论不存在")
 		return
 	}
 
+	// TODO 查看前端文件是否存在
+	var file model.ZipFile
+	if c.DB.Where("id = ?", comment.FileId).First(&file).Error != nil {
+		response.Fail(ctx, nil, "前端文件不存在")
+		return
+	}
+
+	// TODO 查看评论是否已经点赞
+	if !util.IsS(2, "ciL"+commentId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "评论未点赞")
+		return
+	}
+
 	util.RemS(2, "ciL"+commentId, strconv.Itoa(int(user.ID)))
+
+	util.IncrByZ(2, "H", comment.FileId, -5)
+	util.IncrByZ(2, "CH", comment.ID.String(), -10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(comment.UserId)), -10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(file.UserId)), -5)
+
 	response.Success(ctx, nil, "删除成功")
 }
 
@@ -109,7 +146,7 @@ func (c CommentLikeController) LikeList(ctx *gin.Context) {
 	var comment model.Comment
 
 	// TODO 查看评论是否存在
-	if c.DB.Where("id = ?", commentId).First(&comment).RecordNotFound() {
+	if c.DB.Where("id = ?", commentId).First(&comment).Error != nil {
 		response.Fail(ctx, nil, "评论不存在")
 		return
 	}
