@@ -19,7 +19,7 @@ import (
 func FavoriteRoutes(r *gin.Engine) *gin.Engine {
 
 	// TODO 文章收藏的路由分组
-	favoriteArticleRoutes := r.Group("/articlefavorite")
+	favoriteArticleRoutes := r.Group("/article/favorite")
 
 	// TODO 添加中间件
 	favoriteArticleRoutes.Use(middleware.AuthMiddleware())
@@ -31,7 +31,7 @@ func FavoriteRoutes(r *gin.Engine) *gin.Engine {
 	favoriteArticleRoutes.GET("/show/:id", articleFavoriteController.Show)
 
 	// TODO 创建文章收藏
-	favoriteArticleRoutes.PUT("/creat/:id", articleFavoriteController.Create)
+	favoriteArticleRoutes.PUT("/create/:id", articleFavoriteController.Create)
 
 	// TODO 删除文章收藏
 	favoriteArticleRoutes.DELETE("/delete/:id", articleFavoriteController.Delete)
@@ -43,7 +43,7 @@ func FavoriteRoutes(r *gin.Engine) *gin.Engine {
 	favoriteArticleRoutes.GET("/userlist", articleFavoriteController.UserFavoriteList)
 
 	// TODO 帖子收藏的路由分组
-	favoritePostRoutes := r.Group("/postfavorite")
+	favoritePostRoutes := r.Group("/post/favorite")
 
 	// TODO 添加中间件
 	favoritePostRoutes.Use(middleware.AuthMiddleware())
@@ -55,7 +55,7 @@ func FavoriteRoutes(r *gin.Engine) *gin.Engine {
 	favoritePostRoutes.GET("/show/:id", postFavoriteController.Show)
 
 	// TODO 创建帖子收藏
-	favoritePostRoutes.PUT("/creat/:id", postFavoriteController.Create)
+	favoritePostRoutes.PUT("/create/:id", postFavoriteController.Create)
 
 	// TODO 删除帖子收藏
 	favoritePostRoutes.DELETE("/delete/:id", postFavoriteController.Delete)
@@ -67,7 +67,7 @@ func FavoriteRoutes(r *gin.Engine) *gin.Engine {
 	favoritePostRoutes.GET("/userlist", postFavoriteController.UserFavoriteList)
 
 	// TODO 跟帖收藏的路由分组
-	favoriteThreadRoutes := r.Group("/threadfavorite")
+	favoriteThreadRoutes := r.Group("/thread/favorite")
 
 	// TODO 添加中间件
 	favoriteThreadRoutes.Use(middleware.AuthMiddleware())
@@ -79,7 +79,7 @@ func FavoriteRoutes(r *gin.Engine) *gin.Engine {
 	favoriteThreadRoutes.GET("/show/:id", threadFavoriteController.Show)
 
 	// TODO 创建跟帖收藏
-	favoriteThreadRoutes.PUT("/creat/:id", threadFavoriteController.Create)
+	favoriteThreadRoutes.PUT("/create/:id", threadFavoriteController.Create)
 
 	// TODO 删除跟帖收藏
 	favoriteThreadRoutes.DELETE("/delete/:id", threadFavoriteController.Delete)
@@ -91,7 +91,7 @@ func FavoriteRoutes(r *gin.Engine) *gin.Engine {
 	favoriteThreadRoutes.GET("/userlist", threadFavoriteController.UserFavoriteList)
 
 	// TODO 前端文件收藏的路由分组
-	favoriteFileRoutes := r.Group("/zipfilefavorite")
+	favoriteFileRoutes := r.Group("/zipfile/favorite")
 
 	// TODO 添加中间件
 	favoriteFileRoutes.Use(middleware.AuthMiddleware())
@@ -103,7 +103,7 @@ func FavoriteRoutes(r *gin.Engine) *gin.Engine {
 	favoriteFileRoutes.GET("/show/:id", fileFavoriteController.Show)
 
 	// TODO 创建前端文件收藏
-	favoriteFileRoutes.PUT("/creat/:id", fileFavoriteController.Create)
+	favoriteFileRoutes.PUT("/create/:id", fileFavoriteController.Create)
 
 	// TODO 删除前端文件文件收藏
 	favoriteFileRoutes.DELETE("/delete/:id", fileFavoriteController.Delete)
