@@ -19,7 +19,7 @@ import (
 func LabelRoutes(r *gin.Engine) *gin.Engine {
 
 	// TODO 文章标签路由
-	articleLabelRoutes := r.Group("/articlelabel")
+	articleLabelRoutes := r.Group("/article/label")
 
 	// TODO 添加中间件
 	articleLabelRoutes.Use(middleware.AuthMiddleware())
@@ -31,13 +31,13 @@ func LabelRoutes(r *gin.Engine) *gin.Engine {
 	articleLabelRoutes.GET("/show/:id", articleLabelController.Show)
 
 	// TODO 创建文章标签
-	articleLabelRoutes.POST("/creat/:id", articleLabelController.Create)
+	articleLabelRoutes.POST("/create/:id", articleLabelController.Create)
 
 	// TODO 删除文章标签
 	articleLabelRoutes.DELETE("/delete/:id", articleLabelController.Delete)
 
 	// TODO 前端文件标签路由
-	fileLabelRoutes := r.Group("/filelabel")
+	fileLabelRoutes := r.Group("/file/label")
 
 	// TODO 添加中间件
 	fileLabelRoutes.Use(middleware.AuthMiddleware())
@@ -49,13 +49,13 @@ func LabelRoutes(r *gin.Engine) *gin.Engine {
 	fileLabelRoutes.GET("/show/:id", fileLabelController.Show)
 
 	// TODO 创建前端文件标签
-	fileLabelRoutes.POST("/creat/:id", fileLabelController.Create)
+	fileLabelRoutes.POST("/create/:id", fileLabelController.Create)
 
 	// TODO 删除前端文件标签
 	fileLabelRoutes.DELETE("/delete/:id", fileLabelController.Delete)
 
 	// TODO 帖子标签路由
-	postLabelRoutes := r.Group("/postlabel")
+	postLabelRoutes := r.Group("/post/label")
 
 	// TODO 添加中间件
 	postLabelRoutes.Use(middleware.AuthMiddleware())
@@ -67,13 +67,13 @@ func LabelRoutes(r *gin.Engine) *gin.Engine {
 	postLabelRoutes.GET("/show/:id", postLabelController.Show)
 
 	// TODO 创建帖子标签
-	postLabelRoutes.POST("/creat/:id", postLabelController.Create)
+	postLabelRoutes.POST("/create/:id", postLabelController.Create)
 
 	// TODO 删除帖子标签
 	postLabelRoutes.DELETE("/delete/:id", postLabelController.Delete)
 
 	// TODO 用户标签路由
-	userLabelRoutes := r.Group("/userlabel")
+	userLabelRoutes := r.Group("/user/label")
 
 	// TODO 添加中间件
 	userLabelRoutes.Use(middleware.AuthMiddleware())
@@ -88,7 +88,7 @@ func LabelRoutes(r *gin.Engine) *gin.Engine {
 	userLabelRoutes.GET("/show/:id", userLabelController.ShowLabel)
 
 	// TODO 创建用户标签
-	userLabelRoutes.POST("/creat", userLabelController.Create)
+	userLabelRoutes.POST("/create", userLabelController.Create)
 
 	// TODO 删除用户标签
 	userLabelRoutes.DELETE("/delete", userLabelController.Delete)
