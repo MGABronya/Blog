@@ -15,7 +15,7 @@ import (
 	"ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IUserLabelController			定义了用户标签类接口
@@ -42,8 +42,16 @@ func (u UserLabelController) Create(ctx *gin.Context) {
 	var requestLabel = vo.LabelRequest{}
 	ctx.Bind(&requestLabel)
 
+	if util.IsS(4, "aL"+strconv.Itoa(int(user.ID)), requestLabel.Label) {
+		response.Fail(ctx, nil, "标签已设置")
+		return
+	}
+
 	util.SetS(4, "aL"+strconv.Itoa(int(user.ID)), requestLabel.Label)
 	util.SetS(4, "La"+requestLabel.Label, strconv.Itoa(int(user.ID)))
+
+	// TODO 用户标签分数上升
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, 200)
 
 	response.Success(ctx, nil, "设置成功")
 }
@@ -57,7 +65,7 @@ func (u UserLabelController) Show(ctx *gin.Context) {
 	tuser, _ := ctx.Get("user")
 	user := tuser.(model.User)
 
-	response.Success(ctx, gin.H{"labels": util.GetS(4, "aL"+strconv.Itoa(int(user.ID)))}, "查找成功")
+	response.Success(ctx, gin.H{"labels": util.MembersS(4, "aL"+strconv.Itoa(int(user.ID)))}, "查找成功")
 }
 
 // @title    ShowLabel
@@ -69,7 +77,7 @@ func (u UserLabelController) ShowLabel(ctx *gin.Context) {
 
 	userId := ctx.Params.ByName("id")
 
-	response.Success(ctx, gin.H{"labels": util.GetS(4, "aL"+userId)}, "查找成功")
+	response.Success(ctx, gin.H{"labels": util.MembersS(4, "aL"+userId)}, "查找成功")
 }
 
 // @title    Delete
@@ -84,11 +92,22 @@ func (u UserLabelController) Delete(ctx *gin.Context) {
 	var requestLabel = vo.LabelRequest{}
 	ctx.Bind(&requestLabel)
 
+	if !util.IsS(4, "aL"+strconv.Itoa(int(user.ID)), requestLabel.Label) {
+		response.Fail(ctx, nil, "标签未设置")
+		return
+	}
+
 	util.RemS(4, "aL"+strconv.Itoa(int(user.ID)), requestLabel.Label)
 	util.RemS(4, "La"+requestLabel.Label, strconv.Itoa(int(user.ID)))
 
 	if util.CardS(4, "La"+requestLabel.Label) == 0 {
 		util.Del(4, "La"+requestLabel.Label)
+	}
+
+	// TODO 用户标签分数下降
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, -200)
+	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label) <= 0 {
+		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label)
 	}
 
 	response.Success(ctx, nil, "删除成功")
@@ -108,7 +127,7 @@ func (u UserLabelController) DeleteLabel(ctx *gin.Context) {
 	ctx.Bind(&requestLabel)
 
 	// TODO 查看用户是否存在
-	if u.DB.Where("id = ?", userId).First(&user).RecordNotFound() {
+	if u.DB.Where("id = ?", userId).First(&user).Error != nil {
 		response.Fail(ctx, nil, "用户不存在")
 		return
 	}
