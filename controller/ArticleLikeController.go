@@ -14,7 +14,7 @@ import (
 	"ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IArticleLikeController			定义了文章点赞类接口
@@ -41,12 +41,28 @@ func (a ArticleLikeController) Create(ctx *gin.Context) {
 	var article model.Article
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
 	}
 
+	// TODO 查看文章是否已经点赞
+	if util.IsS(1, "iL"+articleId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "文章已点赞")
+		return
+	}
+
+	// TODO 热度提升
+	util.IncrByZ(1, "H", articleId, 10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(article.UserId)), 10)
+
 	util.SetS(1, "iL"+articleId, strconv.Itoa(int(user.ID)))
+
+	// TODO 用户标签分数上升
+	labels := util.MembersS(1, "aL"+articleId)
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, 10)
+	}
 
 	response.Success(ctx, nil, "点赞成功")
 }
@@ -65,7 +81,7 @@ func (a ArticleLikeController) Show(ctx *gin.Context) {
 	var article model.Article
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
 	}
@@ -87,9 +103,28 @@ func (a ArticleLikeController) Delete(ctx *gin.Context) {
 	var article model.Article
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
+	}
+
+	// TODO 查看文章是否已经点赞
+	if !util.IsS(1, "iL"+articleId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "文章未点赞")
+		return
+	}
+
+	// TODO 热度下降
+	util.IncrByZ(1, "H", articleId, -10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(article.UserId)), -10)
+
+	// TODO 用户标签分数下降
+	labels := util.MembersS(1, "aL"+articleId)
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, -10)
+		if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), label) <= 0 {
+			util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), label)
+		}
 	}
 
 	util.RemS(1, "iL"+articleId, strconv.Itoa(int(user.ID)))
@@ -108,7 +143,7 @@ func (a ArticleLikeController) LikeList(ctx *gin.Context) {
 	var article model.Article
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
 	}
