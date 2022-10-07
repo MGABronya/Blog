@@ -15,7 +15,7 @@ import (
 	"ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IPostLabelController			定义了帖子标签类接口
@@ -42,7 +42,7 @@ func (p PostLabelController) Create(ctx *gin.Context) {
 	var post model.Post
 
 	// TODO 查看文章是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
@@ -56,8 +56,16 @@ func (p PostLabelController) Create(ctx *gin.Context) {
 	var requestLabel = vo.LabelRequest{}
 	ctx.Bind(&requestLabel)
 
-	util.SetS(3, "paL"+postId, requestLabel.Label)
-	util.SetS(3, "pLa"+requestLabel.Label, postId)
+	if util.IsS(3, "aL"+postId, requestLabel.Label) {
+		response.Fail(ctx, nil, "标签已设置")
+		return
+	}
+
+	// TODO 用户标签分数上升
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, 30)
+
+	util.SetS(3, "aL"+postId, requestLabel.Label)
+	util.SetS(3, "La"+requestLabel.Label, postId)
 
 	response.Success(ctx, nil, "设置成功")
 }
@@ -74,12 +82,12 @@ func (p PostLabelController) Show(ctx *gin.Context) {
 	var post model.Post
 
 	// TODO 查看帖子是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
 
-	response.Success(ctx, gin.H{"labels": util.GetS(3, "paL"+postId)}, "查找成功")
+	response.Success(ctx, gin.H{"labels": util.MembersS(3, "aL"+postId)}, "查找成功")
 }
 
 // @title    Delete
@@ -99,7 +107,7 @@ func (p PostLabelController) Delete(ctx *gin.Context) {
 	ctx.Bind(&requestLabel)
 
 	// TODO 查看帖子是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
@@ -110,11 +118,22 @@ func (p PostLabelController) Delete(ctx *gin.Context) {
 		return
 	}
 
-	util.RemS(3, "paL"+postId, requestLabel.Label)
-	util.RemS(3, "pLa"+requestLabel.Label, postId)
+	if !util.IsS(3, "aL"+postId, requestLabel.Label) {
+		response.Fail(ctx, nil, "标签未设置")
+		return
+	}
 
-	if util.CardS(3, "pLa"+requestLabel.Label) == 0 {
-		util.Del(3, "pLa"+requestLabel.Label)
+	// TODO 用户标签分数下降
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, -30)
+	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label) <= 0 {
+		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label)
+	}
+
+	util.RemS(3, "aL"+postId, requestLabel.Label)
+	util.RemS(3, "La"+requestLabel.Label, postId)
+
+	if util.CardS(3, "La"+requestLabel.Label) == 0 {
+		util.Del(3, "La"+requestLabel.Label)
 	}
 
 	response.Success(ctx, nil, "删除成功")
