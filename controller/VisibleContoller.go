@@ -13,7 +13,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IVisibleController			定义了可见度类接口
@@ -58,7 +58,7 @@ func (v VisibleController) ArticleCreate(ctx *gin.Context) {
 	var article gmodel.Article
 
 	// TODO 查看文章是否存在
-	if v.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if v.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
 	}
@@ -101,7 +101,7 @@ func (v VisibleController) PostCreate(ctx *gin.Context) {
 	var post gmodel.Post
 
 	// TODO 查看文章是否存在
-	if v.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if v.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
@@ -144,7 +144,7 @@ func (v VisibleController) ZipFileCreate(ctx *gin.Context) {
 	var zipfile model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if v.DB.Where("id = ?", fileId).First(&zipfile).RecordNotFound() {
+	if v.DB.Where("id = ?", fileId).First(&zipfile).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -182,7 +182,7 @@ func (v VisibleController) ArticleShow(ctx *gin.Context) {
 	var article gmodel.Article
 
 	// TODO 查看文章是否存在
-	if v.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if v.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
 	}
@@ -204,7 +204,7 @@ func (v VisibleController) PostShow(ctx *gin.Context) {
 	var post gmodel.Post
 
 	// TODO 查看帖子是否存在
-	if v.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if v.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
@@ -226,7 +226,7 @@ func (v VisibleController) ZipFileShow(ctx *gin.Context) {
 	var zipfile model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if v.DB.Where("id = ?", fileId).First(&zipfile).RecordNotFound() {
+	if v.DB.Where("id = ?", fileId).First(&zipfile).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -253,7 +253,7 @@ func (v VisibleController) PostThread(ctx *gin.Context) {
 	var post gmodel.Post
 
 	// TODO 查看帖子是否存在
-	if v.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if v.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
@@ -288,7 +288,7 @@ func (v VisibleController) ZipfileComment(ctx *gin.Context) {
 	var zipfile model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if v.DB.Where("id = ?", filezipId).First(&zipfile).RecordNotFound() {
+	if v.DB.Where("id = ?", filezipId).First(&zipfile).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -321,7 +321,7 @@ func (v VisibleController) PostThreadShow(ctx *gin.Context) {
 	var post gmodel.Post
 
 	// TODO 查看帖子是否存在
-	if v.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if v.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
@@ -352,7 +352,7 @@ func (v VisibleController) ZipfileCommentShow(ctx *gin.Context) {
 	var zipfile model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if v.DB.Where("id = ?", zipfile).First(&zipfileId).RecordNotFound() {
+	if v.DB.Where("id = ?", zipfile).First(&zipfileId).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -385,7 +385,7 @@ func (v VisibleController) ZipfileDownload(ctx *gin.Context) {
 	var zipfile model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if v.DB.Where("id = ?", filezipId).First(&zipfile).RecordNotFound() {
+	if v.DB.Where("id = ?", filezipId).First(&zipfile).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -417,7 +417,7 @@ func (v VisibleController) ZipfileDownloadShow(ctx *gin.Context) {
 	var zipfile model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if v.DB.Where("id = ?", filezipId).First(&zipfile).RecordNotFound() {
+	if v.DB.Where("id = ?", filezipId).First(&zipfile).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -447,7 +447,7 @@ func (v VisibleController) PostThreadCan(ctx *gin.Context) {
 	var post gmodel.Post
 
 	// TODO 查看帖子是否存在
-	if v.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if v.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
@@ -473,7 +473,7 @@ func (v VisibleController) ZipfileCommentCan(ctx *gin.Context) {
 	var zipfile model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if v.DB.Where("id = ?", zipfileId).First(&zipfile).RecordNotFound() {
+	if v.DB.Where("id = ?", zipfileId).First(&zipfile).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
@@ -499,7 +499,7 @@ func (v VisibleController) ZipfileCan(ctx *gin.Context) {
 	var zipfile model.ZipFile
 
 	// TODO 查看前端文件是否存在
-	if v.DB.Where("id = ?", zipfileId).First(&zipfile).RecordNotFound() {
+	if v.DB.Where("id = ?", zipfileId).First(&zipfile).Error != nil {
 		response.Fail(ctx, nil, "前端文件不存在")
 		return
 	}
