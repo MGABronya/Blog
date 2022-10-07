@@ -13,6 +13,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+
+	"github.com/go-redis/redis/v9"
 )
 
 // @title    Unzip
@@ -95,17 +97,6 @@ func SetH(k int, H string, key string, value string) {
 	client.HSet(ctx, H, key, value)
 }
 
-// @title    GetS
-// @description   在redis中的一个集合中获取值
-// @auth      MGAronya（张健）       2022-9-16 12:15
-// @param    k int, S string        k表示选用第几个库，S为集合
-// @return   string     	  返回对应的value
-func GetS(k int, S string) []string {
-	client := common.GetRedisClient(k)
-	value, _ := client.SMembers(ctx, S).Result()
-	return value
-}
-
 // @title    SetS
 // @description   在redis中的一个集合中设置值
 // @auth      MGAronya（张健）       2022-9-16 12:15
@@ -148,6 +139,28 @@ func MembersS(k int, S string) []string {
 	return es
 }
 
+// @title    InterS
+// @description   在redis中集合的交集
+// @auth      MGAronya（张健）       2022-9-16 12:15
+// @param    k int, S string      k表示选用的第几个库，keys为集合
+// @return   []string		表示交集中的所有元素
+func InterS(k int, keys ...string) []string {
+	client := common.GetRedisClient(k)
+	es, _ := client.SInter(ctx, keys...).Result()
+	return es
+}
+
+// @title    UnionS
+// @description   在redis中集合的并集
+// @auth      MGAronya（张健）       2022-9-16 12:15
+// @param    k int, S string      k表示选用的第几个库，keys为集合
+// @return   []string		表示并集中的所有元素
+func UnionS(k int, keys ...string) []string {
+	client := common.GetRedisClient(k)
+	es, _ := client.SUnion(ctx, keys...).Result()
+	return es
+}
+
 // @title    CardS
 // @description  查看redis中一个集合中元素的个数
 // @auth      MGAronya（张健）       2022-9-16 12:15
@@ -157,6 +170,80 @@ func CardS(k int, Key string) int {
 	client := common.GetRedisClient(k)
 	cnt, _ := client.SCard(ctx, Key).Result()
 	return int(cnt)
+}
+
+// @title    AddZ
+// @description  设置redis中一个有序集合中一个元素
+// @auth      MGAronya（张健）       2022-9-16 12:15
+// @param    k int, key string, value string, cost float64      k表示选用的第几个库，key为要设置的有序集合，value表示值，cost表示权重
+// @return   int	表示该集合元素的个数
+func AddZ(k int, key string, value string, cost float64) {
+	client := common.GetRedisClient(k)
+	client.ZAdd(ctx, key, redis.Z{Score: cost, Member: value})
+}
+
+// @title    ScoreZ
+// @description  查看redis中一个有序集合中一个元素的权重
+// @auth      MGAronya（张健）       2022-9-16 12:15
+// @param    k int, key string, value string      k表示选用的第几个库，key为要设置的有序集合，value表示值
+// @return   int	表示该集合元素的个数
+func ScoreZ(k int, key string, value string) float64 {
+	client := common.GetRedisClient(k)
+	cost, _ := client.ZScore(ctx, key, value).Result()
+	return cost
+}
+
+// @title    IncrByZ
+// @description  修改redis中一个有序集合中一个元素的权重
+// @auth      MGAronya（张健）       2022-9-16 12:15
+// @param    k int, key string, value string, cost float64      k表示选用的第几个库，key为要设置的有序集合，value表示值，cost表示权重
+// @return   int	表示该集合元素的个数
+func IncrByZ(k int, key string, value string, cost float64) {
+	client := common.GetRedisClient(k)
+	client.ZIncrBy(ctx, key, cost, value)
+}
+
+// @title    RangeZ
+// @description  查询redis中一个有序集合中一个范围重的值
+// @auth      MGAronya（张健）       2022-9-16 12:15
+// @param    k int, key string, left int64, right int64      k表示选用的第几个库，key为要设置的有序集合，查询[left, right]中的值
+// @return   []string	表示该集合范围中的元素
+func RangeZ(k int, key string, left int64, right int64) []string {
+	client := common.GetRedisClient(k)
+	res, _ := client.ZRevRange(ctx, key, left, right).Result()
+	return res
+}
+
+// @title    RangeWithScoreZ
+// @description  查询redis中一个有序集合中一个范围重的值和分数
+// @auth      MGAronya（张健）       2022-9-16 12:15
+// @param    k int, key string, left int64, right int64      k表示选用的第几个库，key为要设置的有序集合，查询[left, right]中的值
+// @return   []redis.Z	表示该集合范围中的元素和分数
+func RangeWithScoreZ(k int, key string, left int64, right int64) []redis.Z {
+	client := common.GetRedisClient(k)
+	res, _ := client.ZRevRangeWithScores(ctx, key, left, right).Result()
+	return res
+}
+
+// @title    CardZ
+// @description  查看redis中一个有序集合中元素的个数
+// @auth      MGAronya（张健）       2022-9-16 12:15
+// @param    k int, key string      k表示选用的第几个库，key为要cx查询的有序集合
+// @return   int	表示该集合元素的个数
+func CardZ(k int, key string) int64 {
+	client := common.GetRedisClient(k)
+	res, _ := client.ZCard(ctx, key).Result()
+	return res
+}
+
+// @title    RemZ
+// @description  移除redis中一个有序集合中一个元素
+// @auth      MGAronya（张健）       2022-9-16 12:15
+// @param    k int, key string, value string      k表示选用的第几个库，key为要设置的有序集合，value表示值
+// @return   int	表示该集合元素的个数
+func RemZ(k int, key string, value string) {
+	client := common.GetRedisClient(k)
+	client.ZRem(ctx, key, value)
 }
 
 // @title    Del
