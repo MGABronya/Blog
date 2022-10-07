@@ -40,10 +40,10 @@ func FileRoute(r *gin.Engine) *gin.Engine {
 	fileRoutes.GET("/showlist", fileController.FileList)
 
 	// TODO 获取用户自己上传的前端页面列表
-	fileRoutes.GET("/showmine", fileController.FileListMine)
+	fileRoutes.GET("/show/mine", fileController.FileListMine)
 
 	// TODO 获取某一用户上传的前端页面列表
-	fileRoutes.GET("/showothers/:id", fileController.FileListOthers)
+	fileRoutes.GET("/show/others/:id", fileController.FileListOthers)
 
 	// TODO 前端页面信息查询
 	fileRoutes.GET("/show/:id", fileController.Show)
@@ -88,10 +88,10 @@ func FileRoute(r *gin.Engine) *gin.Engine {
 	commentRoutes.GET("/pagelist/:id", commentController.PageList)
 
 	// TODO 用户查看自己的评论列表
-	commentRoutes.GET("/pagelistmine", commentController.PageListMine)
+	commentRoutes.GET("/pagelist/mine", commentController.PageListMine)
 
 	// TODO 查看某一用户的评论列表
-	commentRoutes.GET("/pagelistothers/:id", commentController.PageListOthers)
+	commentRoutes.GET("/pagelist/others/:id", commentController.PageListOthers)
 
 	return r
 }
