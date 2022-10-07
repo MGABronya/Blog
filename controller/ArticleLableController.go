@@ -15,7 +15,7 @@ import (
 	"ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IArticleLabelController			定义了文章标签类接口
@@ -42,7 +42,7 @@ func (a ArticleLabelController) Create(ctx *gin.Context) {
 	var article model.Article
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
 	}
@@ -55,6 +55,14 @@ func (a ArticleLabelController) Create(ctx *gin.Context) {
 
 	var requestLabel = vo.LabelRequest{}
 	ctx.Bind(&requestLabel)
+
+	if util.IsS(1, "aL"+articleId, requestLabel.Label) {
+		response.Fail(ctx, nil, "标签已设置")
+		return
+	}
+
+	// TODO 用户标签分数上升
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, 30)
 
 	util.SetS(1, "aL"+articleId, requestLabel.Label)
 	util.SetS(1, "La"+requestLabel.Label, articleId)
@@ -74,12 +82,12 @@ func (a ArticleLabelController) Show(ctx *gin.Context) {
 	var article model.Article
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
 	}
 
-	response.Success(ctx, gin.H{"labels": util.GetS(1, "aL"+articleId)}, "查找成功")
+	response.Success(ctx, gin.H{"labels": util.MembersS(1, "aL"+articleId)}, "查找成功")
 }
 
 // @title    Delete
@@ -99,7 +107,7 @@ func (a ArticleLabelController) Delete(ctx *gin.Context) {
 	ctx.Bind(&requestLabel)
 
 	// TODO 查看文章是否存在
-	if a.DB.Where("id = ?", articleId).First(&article).RecordNotFound() {
+	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
 		response.Fail(ctx, nil, "文章不存在")
 		return
 	}
@@ -108,6 +116,17 @@ func (a ArticleLabelController) Delete(ctx *gin.Context) {
 	if util.GetH(0, "permission", strconv.Itoa(int(user.ID)))[0] <= '4' && user.ID != article.UserId {
 		response.Fail(ctx, nil, "文章不属于您，请勿非法操作")
 		return
+	}
+
+	if !util.IsS(1, "aL"+articleId, requestLabel.Label) {
+		response.Fail(ctx, nil, "标签未设置")
+		return
+	}
+
+	// TODO 用户标签分数下降
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, -30)
+	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label) <= 0 {
+		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label)
 	}
 
 	util.RemS(1, "aL"+articleId, requestLabel.Label)
