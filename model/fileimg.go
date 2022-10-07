@@ -7,17 +7,17 @@ package model
 import (
 	"ginEssential/model"
 
-	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 // FileImg			定义前端文件展示图片
 type FileImg struct {
-	ID        uuid.UUID  `json:"id" gorm:"type:char(36);primary_key"` // 展示图片的id
-	UserId    uint       `json:"user_id" gorm:"not null"`             // 作者的id
-	FileId    string     `json:"file_id" gorm:"not null"`             // 所属前端文件的id
-	CreatedAt model.Time `json:"created_at" gorm:"type:timestamp"`    // 创建时间
-	UpdatedAt model.Time `json:"updated_at" gorm:"type:timestamp"`    // 更新时间
+	ID        uuid.UUID  `json:"id" gorm:"type:char(36);primary_key"`      // 展示图片的id
+	UserId    uint       `json:"user_id" gorm:"index:idx_userId;not null"` // 作者的id
+	FileId    string     `json:"file_id" gorm:"index:idx_fileId;not null"` // 所属前端文件的id
+	CreatedAt model.Time `json:"created_at" gorm:"type:timestamp"`         // 创建时间
+	UpdatedAt model.Time `json:"updated_at" gorm:"type:timestamp"`         // 更新时间
 }
 
 // @title    BeforeCreate
@@ -25,6 +25,7 @@ type FileImg struct {
 // @auth      MGAronya（张健）             2022-9-16 10:19
 // @param     scope *gorm.Scope
 // @return    error
-func (fileImg *FileImg) BeforeCreate(scope *gorm.Scope) error {
-	return scope.SetColumn("ID", uuid.NewV4())
+func (fileImg *FileImg) BeforeCreate(scope *gorm.DB) error {
+	fileImg.ID = uuid.NewV4()
+	return nil
 }
