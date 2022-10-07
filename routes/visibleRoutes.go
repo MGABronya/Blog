@@ -46,31 +46,31 @@ func VisibleRoutes(r *gin.Engine) *gin.Engine {
 	visibleRoutes.GET("/zipfile/:id", visibleController.ZipFileShow)
 
 	// TODO 设置帖子是否可以跟帖
-	visibleRoutes.PUT("/postthread/:id", visibleController.PostThread)
+	visibleRoutes.PUT("/post/thread/:id", visibleController.PostThread)
 
 	// TODO 设置前端文件是否可以被评论
-	visibleRoutes.PUT("/zipfilecomment/:id", visibleController.ZipfileComment)
+	visibleRoutes.PUT("/zipfile/comment/:id", visibleController.ZipfileComment)
 
 	// TODO 查看帖子跟帖等级
-	visibleRoutes.GET("/postthread/:id", visibleController.PostThreadShow)
+	visibleRoutes.GET("/post/thread/:id", visibleController.PostThreadShow)
 
 	// TODO 查看前端文件评论等级
-	visibleRoutes.GET("/zipfilecomment/:id", visibleController.ZipfileCommentShow)
+	visibleRoutes.GET("/zipfile/comment/:id", visibleController.ZipfileCommentShow)
 
 	// TODO 设置前端文件是否可以被下载
-	visibleRoutes.PUT("/zipfiledownload/:id", visibleController.ZipfileDownload)
+	visibleRoutes.PUT("/zipfile/download/:id", visibleController.ZipfileDownload)
 
 	// TODO 查看前端文件下载等级
-	visibleRoutes.GET("/zipfiledownload/:id", visibleController.ZipfileDownloadShow)
+	visibleRoutes.GET("/zipfile/download/:id", visibleController.ZipfileDownloadShow)
 
 	// TODO 查看帖子是否可以跟帖
-	visibleRoutes.GET("/postthreadcan/:id", visibleController.PostThreadCan)
+	visibleRoutes.GET("/post/thread/can/:id", visibleController.PostThreadCan)
 
 	// TODO 查看前端文件是否可以下载
-	visibleRoutes.GET("/zipfilecan/:id", visibleController.ZipfileCan)
+	visibleRoutes.GET("/zipfile/can/:id", visibleController.ZipfileCan)
 
 	// TODO 查看前端文件是否可以评论
-	visibleRoutes.GET("/zipfilecommentcan/:id", visibleController.ZipfileCommentCan)
+	visibleRoutes.GET("/zipfile/comment/can/:id", visibleController.ZipfileCommentCan)
 
 	return r
 }
