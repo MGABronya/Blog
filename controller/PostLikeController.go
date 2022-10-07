@@ -14,7 +14,7 @@ import (
 	"ginEssential/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IPostLikeController			定义了帖子点赞类接口
@@ -41,12 +41,28 @@ func (p PostLikeController) Create(ctx *gin.Context) {
 	var post model.Post
 
 	// TODO 查看帖子是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
 
+	// TODO 查看帖子是否已经点赞
+	if util.IsS(3, "piL"+postId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "帖子已点赞")
+		return
+	}
+
+	// TODO 热度上升
+	util.IncrByZ(3, "H", postId, 10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(post.UserId)), 10)
+
 	util.SetS(3, "piL"+postId, strconv.Itoa(int(user.ID)))
+
+	// TODO 用户标签分数上升
+	labels := util.MembersS(3, "aL"+post.ID.String())
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, 10)
+	}
 
 	response.Success(ctx, nil, "点赞成功")
 }
@@ -65,7 +81,7 @@ func (p PostLikeController) Show(ctx *gin.Context) {
 	var post model.Post
 
 	// TODO 查看帖子是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
@@ -87,9 +103,28 @@ func (p PostLikeController) Delete(ctx *gin.Context) {
 	var post model.Post
 
 	// TODO 查看帖子是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
+	}
+
+	// TODO 查看帖子是否已经点赞
+	if !util.IsS(3, "piL"+postId, strconv.Itoa(int(user.ID))) {
+		response.Fail(ctx, nil, "帖子未点赞")
+		return
+	}
+
+	// TODO 热度下降
+	util.IncrByZ(3, "H", postId, -10)
+	util.IncrByZ(4, "H", strconv.Itoa(int(post.UserId)), -10)
+
+	// TODO 用户标签分数下降
+	labels := util.MembersS(3, "aL"+post.ID.String())
+	for _, label := range labels {
+		util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, -10)
+		if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), label) <= 0 {
+			util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), label)
+		}
 	}
 
 	util.RemS(3, "piL"+postId, strconv.Itoa(int(user.ID)))
@@ -108,7 +143,7 @@ func (p PostLikeController) LikeList(ctx *gin.Context) {
 	var post model.Post
 
 	// TODO 查看帖子是否存在
-	if p.DB.Where("id = ?", postId).First(&post).RecordNotFound() {
+	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
 		response.Fail(ctx, nil, "帖子不存在")
 		return
 	}
