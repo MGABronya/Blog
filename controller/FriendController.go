@@ -13,7 +13,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // IFriendController			定义了好友类接口
@@ -91,7 +91,7 @@ func (f FriendController) Applying(ctx *gin.Context) {
 	var userb gmodel.User
 
 	// TODO 查看用户是否存在
-	if f.DB.Where("id = ?", ctx.Params.ByName("id")).First(&userb).RecordNotFound() {
+	if f.DB.Where("id = ?", ctx.Params.ByName("id")).First(&userb).Error != nil {
 		response.Fail(ctx, nil, "用户不存在")
 		return
 	}
@@ -125,7 +125,7 @@ func (f FriendController) Applied(ctx *gin.Context) {
 	var userb gmodel.User
 
 	// TODO 查看用户是否存在
-	if f.DB.Where("id = ?", ctx.Params.ByName("id")).First(&userb).RecordNotFound() {
+	if f.DB.Where("id = ?", ctx.Params.ByName("id")).First(&userb).Error != nil {
 		response.Fail(ctx, nil, "用户不存在")
 		return
 	}
@@ -165,7 +165,7 @@ func (f FriendController) Delete(ctx *gin.Context) {
 	var userb gmodel.User
 
 	// TODO 查看用户是否存在
-	if f.DB.Where("id = ?", ctx.Params.ByName("id")).First(&userb).RecordNotFound() {
+	if f.DB.Where("id = ?", ctx.Params.ByName("id")).First(&userb).Error != nil {
 		response.Fail(ctx, nil, "用户不存在")
 		return
 	}
@@ -205,7 +205,7 @@ func (f FriendController) ShowArticles(ctx *gin.Context) {
 	f.DB.Where("user_id in ? and visible < 3", users).Or("user_id = ?", usera.ID).Order("created_at desc").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&articles)
 
 	// TODO 记录的总条数
-	var total int
+	var total int64
 	f.DB.Where("user_id in ? and visible < 3", users).Or("user_id = ?", usera.ID).Model(gmodel.Article{}).Count(&total)
 
 	response.Success(ctx, gin.H{"articles": articles, "total": total}, "查找成功")
@@ -232,7 +232,7 @@ func (f FriendController) ShowPosts(ctx *gin.Context) {
 	f.DB.Where("user_id in ? and visible < 3", users).Or("user_id = ?", usera.ID).Order("created_at desc").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
 
 	// TODO 记录的总条数
-	var total int
+	var total int64
 	f.DB.Where("user_id in ? and visible < 3", users).Or("user_id = ?", usera.ID).Model(gmodel.Post{}).Count(&total)
 
 	response.Success(ctx, gin.H{"posts": posts, "total": total}, "查找成功")
@@ -259,7 +259,7 @@ func (f FriendController) ShowZipfiles(ctx *gin.Context) {
 	f.DB.Where("user_id in ? and visible < 3", users).Or("user_id = ?", usera.ID).Order("created_at desc").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
 
 	// TODO 记录的总条数
-	var total int
+	var total int64
 	f.DB.Where("user_id in ? and visible < 3", users).Or("user_id = ?", usera.ID).Model(model.ZipFile{}).Count(&total)
 
 	response.Success(ctx, gin.H{"zipfiles": zipfiles, "total": total}, "查找成功")
