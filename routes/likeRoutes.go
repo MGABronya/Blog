@@ -19,7 +19,7 @@ import (
 func LikeRoutes(r *gin.Engine) *gin.Engine {
 
 	// TODO 文章点赞的路由分组
-	likeArticleRoutes := r.Group("/articlelike")
+	likeArticleRoutes := r.Group("/article/like")
 
 	// TODO 添加中间件
 	likeArticleRoutes.Use(middleware.AuthMiddleware())
@@ -31,7 +31,7 @@ func LikeRoutes(r *gin.Engine) *gin.Engine {
 	likeArticleRoutes.GET("/show/:id", articleLikeController.Show)
 
 	// TODO 创建文章点赞
-	likeArticleRoutes.PUT("/creat/:id", articleLikeController.Create)
+	likeArticleRoutes.PUT("/create/:id", articleLikeController.Create)
 
 	// TODO 删除文章点赞
 	likeArticleRoutes.DELETE("/delete/:id", articleLikeController.Delete)
@@ -40,7 +40,7 @@ func LikeRoutes(r *gin.Engine) *gin.Engine {
 	likeArticleRoutes.GET("/list/:id", articleLikeController.LikeList)
 
 	// TODO 帖子点赞的路由分组
-	likePostRoutes := r.Group("/postlike")
+	likePostRoutes := r.Group("/post/like")
 
 	// TODO 添加中间件
 	likePostRoutes.Use(middleware.AuthMiddleware())
@@ -52,7 +52,7 @@ func LikeRoutes(r *gin.Engine) *gin.Engine {
 	likePostRoutes.GET("/show/:id", postLikeController.Show)
 
 	// TODO 创建帖子点赞
-	likePostRoutes.PUT("/creat/:id", postLikeController.Create)
+	likePostRoutes.PUT("/create/:id", postLikeController.Create)
 
 	// TODO 删除帖子点赞
 	likePostRoutes.DELETE("/delete/:id", postLikeController.Delete)
@@ -61,7 +61,7 @@ func LikeRoutes(r *gin.Engine) *gin.Engine {
 	likePostRoutes.GET("/list/:id", postLikeController.LikeList)
 
 	// TODO 跟帖点赞的路由分组
-	likeThreadRoutes := r.Group("/threadlike")
+	likeThreadRoutes := r.Group("/thread/like")
 
 	// TODO 添加中间件
 	likeThreadRoutes.Use(middleware.AuthMiddleware())
@@ -73,7 +73,7 @@ func LikeRoutes(r *gin.Engine) *gin.Engine {
 	likeThreadRoutes.GET("/show/:id", threadLikeController.Show)
 
 	// TODO 创建跟帖点赞
-	likeThreadRoutes.PUT("/creat/:id", threadLikeController.Create)
+	likeThreadRoutes.PUT("/create/:id", threadLikeController.Create)
 
 	// TODO 删除跟帖点赞
 	likeThreadRoutes.DELETE("/delete/:id", threadLikeController.Delete)
@@ -82,7 +82,7 @@ func LikeRoutes(r *gin.Engine) *gin.Engine {
 	likeThreadRoutes.GET("/list/:id", threadLikeController.LikeList)
 
 	// TODO 前端文件点赞的路由分组
-	likeFileRoutes := r.Group("/filelike")
+	likeFileRoutes := r.Group("/file/like")
 
 	// TODO 添加中间件
 	likeFileRoutes.Use(middleware.AuthMiddleware())
@@ -94,7 +94,7 @@ func LikeRoutes(r *gin.Engine) *gin.Engine {
 	likeFileRoutes.GET("/show/:id", fileLikeController.Show)
 
 	// TODO 创建前端文件点赞
-	likeFileRoutes.PUT("/creat/:id", fileLikeController.Create)
+	likeFileRoutes.PUT("/create/:id", fileLikeController.Create)
 
 	// TODO 删除前端文件点赞
 	likeFileRoutes.DELETE("/delete/:id", fileLikeController.Delete)
@@ -103,7 +103,7 @@ func LikeRoutes(r *gin.Engine) *gin.Engine {
 	likeFileRoutes.GET("/list/:id", fileLikeController.LikeList)
 
 	// TODO 评论点赞的路由分组
-	likeCommentRoutes := r.Group("/commentlike")
+	likeCommentRoutes := r.Group("/comment/like")
 
 	// TODO 添加中间件
 	likeCommentRoutes.Use(middleware.AuthMiddleware())
@@ -115,7 +115,7 @@ func LikeRoutes(r *gin.Engine) *gin.Engine {
 	likeCommentRoutes.GET("/show/:id", commentLikeController.Show)
 
 	// TODO 创建评论点赞
-	likeCommentRoutes.PUT("/creat/:id", commentLikeController.Create)
+	likeCommentRoutes.PUT("/create/:id", commentLikeController.Create)
 
 	// TODO 删除评论点赞
 	likeCommentRoutes.DELETE("/delete/:id", commentLikeController.Delete)
