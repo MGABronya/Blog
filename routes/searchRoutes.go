@@ -29,29 +29,56 @@ func SearchRoutes(r *gin.Engine) *gin.Engine {
 	// TODO 按文本搜索文章
 	searchRoutes.GET("/article/:text", searchController.Article)
 
+	// TODO 按文本搜索指定用户的文章
+	searchRoutes.GET("/article/:text/:id", searchController.ArticleUser)
+
 	// TODO 按文本搜索帖子
 	searchRoutes.GET("/post/:text", searchController.Post)
+
+	// TODO 按文本搜索指定用户的帖子
+	searchRoutes.GET("/post/:text/:id", searchController.PostUser)
 
 	// TODO 按文本搜索前端文件
 	searchRoutes.GET("/zipfile/:text", searchController.Zipfile)
 
+	// TODO 按文本搜索指定用户的前端文件
+	searchRoutes.GET("/zipfile/:text/:id", searchController.ZipfileUser)
+
 	// TODO 按文本和标签交集搜索文章
 	searchRoutes.GET("/article/inter/:text", searchController.ArticleWithLabelInter)
+
+	// TODO 按文本和标签交集搜索指定用户的文章
+	searchRoutes.GET("/article/inter/:text/:id", searchController.ArticleWithLabelInterUser)
 
 	// TODO 按文本和标签交集搜索帖子
 	searchRoutes.GET("/post/inter/:text", searchController.PostWithLabelInter)
 
+	// TODO 按文本和标签交集搜索指定用户的帖子
+	searchRoutes.GET("/post/inter/:text/:id", searchController.PostWithLabelInterUser)
+
 	// TODO 按文本和标签交集搜索前端文件
 	searchRoutes.GET("/zipfile/inter/:text", searchController.ZipfileWithLabelInter)
+
+	// TODO 按文本和标签交集搜索指定用户的前端文件
+	searchRoutes.GET("/zipfile/inter/:text/:id", searchController.ZipfileWithLabelInterUser)
 
 	// TODO 按文本和标签并集搜索文章
 	searchRoutes.GET("/article/union/:text", searchController.ArticleWithLabelUnion)
 
+	// TODO 按文本和标签并集搜索指定用户的文章
+	searchRoutes.GET("/article/union/:text/:id", searchController.ArticleWithLabelUnionUser)
+
 	// TODO 按文本和标签并集搜索帖子
 	searchRoutes.GET("/post/union/:text", searchController.PostWithLabelUnion)
 
+	// TODO 按文本和标签并集搜索指定用户的帖子
+	searchRoutes.GET("/post/union/:text/:id", searchController.PostWithLabelUnionUser)
+
 	// TODO 按文本和标签并集搜索前端文件
 	searchRoutes.GET("/zipfile/union/:text", searchController.ZipfileWithLabelUnion)
+
+	// TODO 按文本和标签并集搜索指定用户的前端文件
+	searchRoutes.GET("/zipfile/union/:text/:id", searchController.ZipfileWithLabelUnionUser)
 
 	return r
 }

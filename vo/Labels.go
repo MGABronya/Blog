@@ -6,5 +6,5 @@ package vo
 
 // LabelsRequest			接收一组标签
 type LabelsRequest struct {
-	Labels []string `json:"labels"` // 标签
+	Labels []string `form:"labels"` // 标签
 }
