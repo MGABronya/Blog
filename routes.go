@@ -50,5 +50,8 @@ func CollectRoute(r *gin.Engine) *gin.Engine {
 	// TODO 留言板路由
 	r = routes.GuestbookRoutes(r)
 
+	// TODO 搜寻用户路由
+	r = routes.UserFindRoutes(r)
+
 	return r
 }
