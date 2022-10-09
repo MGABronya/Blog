@@ -6,6 +6,7 @@ package main
 
 import (
 	"Blog/routes"
+	"ginEssential/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +17,9 @@ import (
 // @param     r *gin.Engine			gin引擎
 // @return    r *gin.Engine			gin引擎
 func CollectRoute(r *gin.Engine) *gin.Engine {
+
+	// TODO 添加中间件
+	r.Use(middleware.CORSMiddleware(), middleware.RecoveryMiddleware())
 
 	// TODO 上传个人前端路由
 	r = routes.FileRoute(r)
