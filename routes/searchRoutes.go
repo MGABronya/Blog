@@ -23,62 +23,68 @@ func SearchRoutes(r *gin.Engine) *gin.Engine {
 	// TODO 添加中间件
 	searchRoutes.Use(middleware.AuthMiddleware())
 
-	// TODO 创建文本搜索controller
-	searchController := controller.NewSearchController()
+	// TODO 创建文章文本搜索controller
+	articleSearchController := controller.NewArticleSearchController()
 
 	// TODO 按文本搜索文章
-	searchRoutes.GET("/article/:text", searchController.Article)
+	searchRoutes.GET("/article/:text", articleSearchController.Show)
 
 	// TODO 按文本搜索指定用户的文章
-	searchRoutes.GET("/article/:text/:id", searchController.ArticleUser)
-
-	// TODO 按文本搜索帖子
-	searchRoutes.GET("/post/:text", searchController.Post)
-
-	// TODO 按文本搜索指定用户的帖子
-	searchRoutes.GET("/post/:text/:id", searchController.PostUser)
-
-	// TODO 按文本搜索前端文件
-	searchRoutes.GET("/zipfile/:text", searchController.Zipfile)
-
-	// TODO 按文本搜索指定用户的前端文件
-	searchRoutes.GET("/zipfile/:text/:id", searchController.ZipfileUser)
+	searchRoutes.GET("/article/:text/:id", articleSearchController.ShowUser)
 
 	// TODO 按文本和标签交集搜索文章
-	searchRoutes.GET("/article/inter/:text", searchController.ArticleWithLabelInter)
+	searchRoutes.GET("/article/inter/:text", articleSearchController.ShowWithLabelInter)
 
 	// TODO 按文本和标签交集搜索指定用户的文章
-	searchRoutes.GET("/article/inter/:text/:id", searchController.ArticleWithLabelInterUser)
-
-	// TODO 按文本和标签交集搜索帖子
-	searchRoutes.GET("/post/inter/:text", searchController.PostWithLabelInter)
-
-	// TODO 按文本和标签交集搜索指定用户的帖子
-	searchRoutes.GET("/post/inter/:text/:id", searchController.PostWithLabelInterUser)
-
-	// TODO 按文本和标签交集搜索前端文件
-	searchRoutes.GET("/zipfile/inter/:text", searchController.ZipfileWithLabelInter)
-
-	// TODO 按文本和标签交集搜索指定用户的前端文件
-	searchRoutes.GET("/zipfile/inter/:text/:id", searchController.ZipfileWithLabelInterUser)
+	searchRoutes.GET("/article/inter/:text/:id", articleSearchController.ShowWithLabelInterUser)
 
 	// TODO 按文本和标签并集搜索文章
-	searchRoutes.GET("/article/union/:text", searchController.ArticleWithLabelUnion)
+	searchRoutes.GET("/article/union/:text", articleSearchController.ShowWithLabelUnion)
 
 	// TODO 按文本和标签并集搜索指定用户的文章
-	searchRoutes.GET("/article/union/:text/:id", searchController.ArticleWithLabelUnionUser)
+	searchRoutes.GET("/article/union/:text/:id", articleSearchController.ShowWithLabelUnionUser)
+
+	// TODO 创建文章文本搜索controller
+	postSearchController := controller.NewPostSearchController()
+
+	// TODO 按文本搜索帖子
+	searchRoutes.GET("/post/:text", postSearchController.Show)
+
+	// TODO 按文本搜索指定用户的帖子
+	searchRoutes.GET("/post/:text/:id", postSearchController.ShowUser)
+
+	// TODO 按文本和标签交集搜索帖子
+	searchRoutes.GET("/post/inter/:text", postSearchController.ShowWithLabelInter)
+
+	// TODO 按文本和标签交集搜索指定用户的帖子
+	searchRoutes.GET("/post/inter/:text/:id", postSearchController.ShowWithLabelInterUser)
 
 	// TODO 按文本和标签并集搜索帖子
-	searchRoutes.GET("/post/union/:text", searchController.PostWithLabelUnion)
+	searchRoutes.GET("/post/union/:text", postSearchController.ShowWithLabelUnion)
 
 	// TODO 按文本和标签并集搜索指定用户的帖子
-	searchRoutes.GET("/post/union/:text/:id", searchController.PostWithLabelUnionUser)
+	searchRoutes.GET("/post/union/:text/:id", postSearchController.ShowWithLabelUnionUser)
 
-	// TODO 按文本和标签并集搜索前端文件
-	searchRoutes.GET("/zipfile/union/:text", searchController.ZipfileWithLabelUnion)
+	// TODO 创建前端文件文本搜索controller
+	fileSearchController := controller.NewFileSearchController()
 
-	// TODO 按文本和标签并集搜索指定用户的前端文件
-	searchRoutes.GET("/zipfile/union/:text/:id", searchController.ZipfileWithLabelUnionUser)
+	// TODO 按文本搜索帖子
+	searchRoutes.GET("/zipfile/:text", fileSearchController.Show)
+
+	// TODO 按文本搜索指定用户的帖子
+	searchRoutes.GET("/zipfile/:text/:id", fileSearchController.ShowUser)
+
+	// TODO 按文本和标签交集搜索帖子
+	searchRoutes.GET("/zipfile/inter/:text", fileSearchController.ShowWithLabelInter)
+
+	// TODO 按文本和标签交集搜索指定用户的帖子
+	searchRoutes.GET("/zipfile/inter/:text/:id", fileSearchController.ShowWithLabelInterUser)
+
+	// TODO 按文本和标签并集搜索帖子
+	searchRoutes.GET("/zipfile/union/:text", fileSearchController.ShowWithLabelUnion)
+
+	// TODO 按文本和标签并集搜索指定用户的帖子
+	searchRoutes.GET("/zipfile/union/:text/:id", fileSearchController.ShowWithLabelUnionUser)
 
 	return r
 }
