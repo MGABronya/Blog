@@ -24,44 +24,50 @@ func HistoryRoutes(r *gin.Engine) *gin.Engine {
 	// TODO 添加中间件
 	historyRoutes.Use(middleware.AuthMiddleware())
 
-	// TODO 创建文章收藏controller
-	historyController := controller.NewHistoryController()
+	// TODO 创建文章历史记录controller
+	articleHistoryController := controller.NewArticleHistoryController()
 
 	// TODO 设置文章历史记录
-	historyRoutes.POST("/article/:id", historyController.ArticleCreate)
-
-	// TODO 设置帖子历史记录
-	historyRoutes.POST("/post/:id", historyController.PostCreate)
-
-	// TODO 设置前端文件历史记录
-	historyRoutes.POST("/zipfile/:id", historyController.ZipfileCreate)
+	historyRoutes.POST("/article/:id", articleHistoryController.Create)
 
 	// TODO 查看文章历史列表
-	historyRoutes.GET("/article", historyController.AriticleShow)
-
-	// TODO 查看帖子历史列表
-	historyRoutes.GET("/post", historyController.PostShow)
-
-	// TODO 查看前端文件历史列表
-	historyRoutes.GET("/zipfile", historyController.ZipfileShow)
+	historyRoutes.GET("/article", articleHistoryController.Show)
 
 	// TODO 删除文章历史记录
-	historyRoutes.DELETE("/article/:id", historyController.ArticleDelete)
-
-	// TODO 删除帖子历史记录
-	historyRoutes.DELETE("/post/:id", historyController.PostDelete)
-
-	// TODO 删除前端文件历史记录
-	historyRoutes.DELETE("/zipfile/:id", historyController.ZipfileDelete)
+	historyRoutes.DELETE("/article/:id", articleHistoryController.Delete)
 
 	// TODO 清空文章历史记录
-	historyRoutes.DELETE("/article/all", historyController.ArticleDeleteAll)
+	historyRoutes.DELETE("/article/all", articleHistoryController.DeleteAll)
+
+	// TODO 创建帖子历史记录controller
+	postHistoryController := controller.NewPostHistoryController()
+
+	// TODO 设置帖子历史记录
+	historyRoutes.POST("/post/:id", postHistoryController.Create)
+
+	// TODO 查看帖子历史列表
+	historyRoutes.GET("/post", postHistoryController.Show)
+
+	// TODO 删除帖子历史记录
+	historyRoutes.DELETE("/post/:id", postHistoryController.Delete)
 
 	// TODO 清空帖子历史记录
-	historyRoutes.DELETE("/post/all", historyController.PostDeleteAll)
+	historyRoutes.DELETE("/post/all", postHistoryController.DeleteAll)
+
+	// TODO 创建前端文件历史记录controller
+	zipfileHistoryController := controller.NewFileHistoryController()
+
+	// TODO 设置前端文件历史记录
+	historyRoutes.POST("/zipfile/:id", zipfileHistoryController.Create)
+
+	// TODO 查看前端文件历史列表
+	historyRoutes.GET("/zipfile", zipfileHistoryController.Show)
+
+	// TODO 删除前端文件历史记录
+	historyRoutes.DELETE("/zipfile/:id", zipfileHistoryController.Delete)
 
 	// TODO 清空前端文件历史记录
-	historyRoutes.DELETE("/zipfile/all", historyController.ZipfileDeleteAll)
+	historyRoutes.DELETE("/zipfile/all", zipfileHistoryController.DeleteAll)
 
 	return r
 }
