@@ -169,7 +169,7 @@ func (f FileController) Delete(ctx *gin.Context) {
 	var comments []model.Comment
 
 	// TODO 遍历每一条评论并移除热点
-	f.DB.Where("file_id = ?", pfile.ID).Find(comments)
+	f.DB.Where("file_id = ?", pfile.ID).Find(&comments)
 
 	for _, comment := range comments {
 		DeleteCommentHot(&comment)
@@ -268,7 +268,7 @@ func (f FileController) FileListMine(ctx *gin.Context) {
 	f.DB.Where("user_id = ?", user.ID).Order("created_at desc").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
 
 	var total int64
-	f.DB.Where("visible = 1").Model(model.ZipFile{}).Count(&total)
+	f.DB.Where("user_id = ?", user.ID).Model(model.ZipFile{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"files": zipfiles, "total": total}, "成功")
@@ -435,12 +435,9 @@ func (f FileController) Update(ctx *gin.Context) {
 	}
 
 	// TODO 更新文件信息
-	zipFile.Title = requestZipfile.Title
-	zipFile.Content = requestZipfile.Content
+	f.DB.Table("zip_files").Where("id = ?", Id).Updates(&requestZipfile)
 
-	f.DB.Save(&zipFile)
-
-	response.Success(ctx, gin.H{"file": zipFile}, "更新成功")
+	response.Success(ctx, nil, "更新成功")
 }
 
 // @title    CreateImg
@@ -495,6 +492,12 @@ func (f FileController) CreateImg(ctx *gin.Context) {
 
 	fileImg.FileId = Id
 	fileImg.UserId = user.ID
+	fileImg.Ext = extName
+
+	// TODO 插入数据
+	if err := f.DB.Create(&fileImg).Error; err != nil {
+		panic(err)
+	}
 
 	file.Filename = fmt.Sprint(fileImg.ID) + extName
 
@@ -578,5 +581,6 @@ func (f FileController) ShowImg(ctx *gin.Context) {
 func NewFileController() IFileController {
 	db := common.GetDB()
 	db.AutoMigrate(model.ZipFile{})
+	db.AutoMigrate(model.FileImg{})
 	return FileController{DB: db}
 }

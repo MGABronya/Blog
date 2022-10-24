@@ -14,6 +14,7 @@ import (
 // FileImg			定义前端文件展示图片
 type FileImg struct {
 	ID        uuid.UUID  `json:"id" gorm:"type:char(36);primary_key"`      // 展示图片的id
+	Ext       string     `json:"ext" gorm:"type:char(16)"`                 // 图片的扩展名
 	UserId    uint       `json:"user_id" gorm:"index:idx_userId;not null"` // 作者的id
 	FileId    string     `json:"file_id" gorm:"index:idx_fileId;not null"` // 所属前端文件的id
 	CreatedAt model.Time `json:"created_at" gorm:"type:timestamp"`         // 创建时间
