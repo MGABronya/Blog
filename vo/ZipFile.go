@@ -7,7 +7,7 @@ package vo
 // ZipFileRequest			接收更新前端请求时的文件信息
 type ZipFileRequest struct {
 	Title    string `json:"title"`     // 标题
-	Content  string `json:"comment"`   // 备注
+	Content  string `json:"content"`   // 备注
 	ResLong  string `json:"res_long"`  // 备用长文本
 	ResShort string `json:"res_short"` // 备用短文本
 }
