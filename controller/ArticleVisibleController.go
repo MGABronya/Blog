@@ -5,8 +5,8 @@
 package controller
 
 import (
-	Interface "Blog/interface"
 	"ginEssential/common"
+	Interface "ginEssential/interface"
 	gmodel "ginEssential/model"
 	"ginEssential/response"
 	"strconv"

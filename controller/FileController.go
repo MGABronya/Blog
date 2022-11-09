@@ -381,11 +381,10 @@ func (f FileController) Choose(ctx *gin.Context) {
 		return
 	}
 
-	os.RemoveAll("./dist/" + user.Name)
+	os.RemoveAll("./home/" + user.Name)
+	os.Mkdir("./home/"+user.Name, os.ModePerm)
 
-	os.Mkdir("./dist/"+user.Name, os.ModePerm)
-
-	if err := util.Unzip(filePath, "./dist/"+user.Name); err != nil {
+	if err := util.Unzip(filePath, "./home/"+user.Name); err != nil {
 		response.Fail(ctx, nil, "前端文件解压失败")
 		return
 	}
