@@ -253,7 +253,7 @@ func (c CommentController) PageList(ctx *gin.Context) {
 
 	// TODO 记录的总条数
 	var total int64
-	c.DB.Model(model.Comment{}).Count(&total)
+	c.DB.Where("file_id = ?", fileId).Model(model.Comment{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"comments": comments, "total": total}, "成功")

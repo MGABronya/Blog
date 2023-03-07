@@ -48,10 +48,10 @@ func (s PostSearchController) Show(ctx *gin.Context) {
 	var total int64
 
 	// TODO 模糊匹配
-	s.DB.Where("(visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", users, usera.ID, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
+	s.DB.Where("(visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", users, usera.ID, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
 
 	// TODO 查看查询总数
-	s.DB.Where("(visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", users, usera.ID, text).Model(gmodel.Post{}).Count(&total)
+	s.DB.Where("(visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", users, usera.ID, text+"*").Model(gmodel.Post{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"posts": posts, "total": total}, "成功")
@@ -84,11 +84,11 @@ func (s PostSearchController) ShowUser(ctx *gin.Context) {
 	var posts []gmodel.Post
 
 	// TODO 模糊匹配
-	s.DB.Where("visible < ? and user_id = ? and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
+	s.DB.Where("visible < ? and user_id = ? and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("visible < ? and user_id = ? and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, text).Model(gmodel.Post{}).Count(&total)
+	s.DB.Where("visible < ? and user_id = ? and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, text+"*").Model(gmodel.Post{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"posts": posts, "total": total}, "成功")
@@ -130,11 +130,11 @@ func (s PostSearchController) ShowWithLabelInter(ctx *gin.Context) {
 	var posts []gmodel.Post
 
 	// TODO 模糊匹配
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", postIds, users, usera.ID, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
+	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", postIds, users, usera.ID, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", postIds, users, usera.ID, text).Model(gmodel.Post{}).Count(&total)
+	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", postIds, users, usera.ID, text+"*").Model(gmodel.Post{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"posts": posts, "total": total}, "成功")
@@ -185,11 +185,11 @@ func (s PostSearchController) ShowWithLabelInterUser(ctx *gin.Context) {
 	var posts []gmodel.Post
 
 	// TODO 模糊匹配
-	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, postIds, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
+	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, postIds, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, postIds, text).Model(gmodel.Post{}).Count(&total)
+	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, postIds, text+"*").Model(gmodel.Post{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"posts": posts, "total": total}, "成功")
@@ -231,11 +231,11 @@ func (s PostSearchController) ShowWithLabelUnion(ctx *gin.Context) {
 	var posts []gmodel.Post
 
 	// TODO 模糊匹配
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", postIds, users, usera.ID, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
+	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", postIds, users, usera.ID, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", postIds, users, usera.ID, text).Model(gmodel.Post{}).Count(&total)
+	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", postIds, users, usera.ID, text+"*").Model(gmodel.Post{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"posts": posts, "total": total}, "成功")
@@ -286,11 +286,11 @@ func (s PostSearchController) ShowWithLabelUnionUser(ctx *gin.Context) {
 	var posts []gmodel.Post
 
 	// TODO 模糊匹配
-	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, postIds, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
+	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, postIds, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, postIds, text).Model(gmodel.Post{}).Count(&total)
+	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, postIds, text+"*").Model(gmodel.Post{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"posts": posts, "total": total}, "成功")

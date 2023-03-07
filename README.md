@@ -552,7 +552,7 @@
   
   - **接口地址：/comment/like/list/:id**
   
-    **功能：查看前端评论列表**
+    **功能：查看评论点赞列表**
   
     **方法：GET**
   
@@ -964,7 +964,7 @@
   
     返回值：返回一个Level值，表示前端文件的可评论等级
   
-  - **接口地址：/zipfile/download/:id**
+  - **接口地址：/visible/zipfile/download/:id**
   
     **功能：设置前端文件下载等级**
   
@@ -974,7 +974,7 @@
   
     返回值：返回设置成功信息
   
-  - **接口地址：/post/thread/can/:id**
+  - **接口地址：/visible/post/thread/can/:id**
   
     **功能：查看帖子是否可以跟帖**
   
@@ -984,7 +984,7 @@
   
     返回参数：返回一个flag，其为bool类型，表示当前用户是否可以跟帖
   
-  - **接口地址：/zipfile/can/:id**
+  - **接口地址：/visible/zipfile/can/:id**
   
     **功能：查看前端文件是否可以下载**
   
@@ -994,7 +994,7 @@
   
     返回参数：返回一个flag，其为bool类型，表示当前用户是否可以下载
   
-  - **接口地址：/zipfile/comment/can/:id**
+  - **接口地址：/visible/zipfile/comment/can/:id**
   
     **功能：查看前端文件是否可以评论**
   
@@ -1342,7 +1342,7 @@
 
   - **接口地址：/search/zipfile/:text**
 
-    **功能：按文本搜索帖子**
+    **功能：按文本搜索前端文件**
 
     **方法：GET**
 
@@ -1356,7 +1356,7 @@
 
     **方法：GET**
 
-    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇文章，默认值为20），在Body，raw格式给出json类型数据包含一个labels数组，labels表示搜索包含的标签。
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇文章，默认值为20），labels数组，labels表示搜索包含的标签。
 
     返回参数：返回articles和total，其中articles为article数组，每个article中包含id,user_id,content,create_at,updated_at,res_short,res_long。total表示文章搜索结果的总数。
 
@@ -1366,7 +1366,7 @@
 
     **方法：GET**
 
-    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇帖子，默认值为20），在Body，raw格式给出json类型数据包含一个labels数组，labels表示搜索包含的标签。
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇帖子，默认值为20），labels数组，labels表示搜索包含的标签。
 
     返回参数：返回posts和total，其中posts为post数组，每个post中包含id,user_id,content,create_at,updated_at,res_short,res_long。total表示帖子搜索结果的总数。
 
@@ -1376,7 +1376,7 @@
 
     **方法：GET**
 
-    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少个前端文件，默认值为20），在Body，raw格式给出json类型数据包含一个labels数组，labels表示搜索包含的标签。
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少个前端文件，默认值为20），labels数组，labels表示搜索包含的标签。
 
     返回参数：返回zipfiles和total，其中zipfiles为zipfile数组，每个zipfile中包含id,user_id,title,content,create_at,updated_at,res_short,res_long。total表示前端文件搜索结果的总数。
 
@@ -1386,7 +1386,7 @@
 
     **方法：GET**
 
-    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇文章，默认值为20），在Body，raw格式给出json类型数据包含一个labels数组，labels表示搜索包含的标签。
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇文章，默认值为20），labels数组，labels表示搜索包含的标签。
 
     返回参数：返回articles和total，其中articles为article数组，每个article中包含id,user_id,content,create_at,updated_at,res_short,res_long。total表示文章搜索结果的总数。
 
@@ -1396,7 +1396,7 @@
 
     **方法：GET**
 
-    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇帖子，默认值为20），在Body，raw格式给出json类型数据包含一个labels数组，labels表示搜索包含的标签。
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇帖子，默认值为20），labels数组，labels表示搜索包含的标签。
 
     返回参数：返回posts和total，其中posts为post数组，每个post中包含id,user_id,content,create_at,updated_at,res_short,res_long。total表示帖子搜索结果的总数。
 
@@ -1406,7 +1406,97 @@
 
     **方法：GET**
 
-    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少个前端文件，默认值为20），在Body，raw格式给出json类型数据包含一个labels数组，labels表示搜索包含的标签。
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少个前端文件，默认值为20），labels数组，labels表示搜索包含的标签。
+
+    返回参数：返回zipfiles和total，其中zipfiles为zipfile数组，每个zipfile中包含id,user_id,title,content,create_at,updated_at,res_short,res_long。total表示前端文件搜索结果的总数。
+    
+  - **接口地址：/search/article/:text/:id**
+
+    **功能：按文本搜索指定用户的文章**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text和用户id，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇文章，默认值为20）。
+
+    返回参数：返回articles和total，其中articles为article数组，每个article中包含id,user_id,content,create_at,updated_at,res_short,res_long。total表示文章搜索结果的总数。
+
+  - **接口地址：/search/post/:text/:id**
+
+    **功能：按文本搜索指定用户的帖子**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text和用户id，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇帖子，默认值为20）。
+
+    返回参数：返回posts和total，其中posts为post数组，每个post中包含id,user_id,content,create_at,updated_at,res_short,res_long。total表示帖子搜索结果的总数。
+
+  - **接口地址：/search/zipfile/:text/:id**
+
+    **功能：按文本搜索指定用户的帖子**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text和用户id，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少个前端文件，默认值为20）。
+
+    返回参数：返回zipfiles和total，其中zipfiles为zipfile数组，每个zipfile中包含id,user_id,title,content,create_at,updated_at,res_short,res_long。total表示前端文件搜索结果的总数。
+
+  - **接口地址：/search/article/inter/:text/:id**
+
+    **功能：按文本和标签交集搜索指定用户的文章**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text和用户id，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇文章，默认值为20），labels数组，labels表示搜索包含的标签。
+
+    返回参数：返回articles和total，其中articles为article数组，每个article中包含id,user_id,content,create_at,updated_at,res_short,res_long。total表示文章搜索结果的总数。
+
+  - **接口地址：/search/post/inter/:text/:id**
+
+    **功能：按文本和标签交集搜索指定用户的帖子**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text和用户id，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇帖子，默认值为20），labels数组，labels表示搜索包含的标签。
+
+    返回参数：返回posts和total，其中posts为post数组，每个post中包含id,user_id,content,create_at,updated_at,res_short,res_long。total表示帖子搜索结果的总数。
+
+  - **接口地址：/search/zipfile/inter/:text/:id**
+
+    **功能：按文本和标签交集搜索指定用户的前端文件**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text和用户id，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少个前端文件，默认值为20），labels数组，labels表示搜索包含的标签。
+
+    返回参数：返回zipfiles和total，其中zipfiles为zipfile数组，每个zipfile中包含id,user_id,title,content,create_at,updated_at,res_short,res_long。total表示前端文件搜索结果的总数。
+
+  - **接口地址：/search/article/union/:text/:id**
+
+    **功能：按文本和标签并集搜索指定用户的文章**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text和用户id，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇文章，默认值为20），labels数组，labels表示搜索包含的标签。
+
+    返回参数：返回articles和total，其中articles为article数组，每个article中包含id,user_id,content,create_at,updated_at,res_short,res_long。total表示文章搜索结果的总数。
+
+  - **接口地址：/search/post/union/:text/:id**
+
+    **功能：按文本和标签并集搜索指定用户的帖子**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text和用户id，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少篇帖子，默认值为20），labels数组，labels表示搜索包含的标签。
+
+    返回参数：返回posts和total，其中posts为post数组，每个post中包含id,user_id,content,create_at,updated_at,res_short,res_long。total表示帖子搜索结果的总数。
+
+  - **接口地址：/search/zipfile/union/:text/:id**
+
+    **功能：按文本和标签并集搜索指定用户的前端文件**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在接口处给出需要搜索的文本信息text和用户id，在Params处提供pageNum（表示第几页，默认值为1）和pageSize（表示一页多少个前端文件，默认值为20），labels数组，labels表示搜索包含的标签。
 
     返回参数：返回zipfiles和total，其中zipfiles为zipfile数组，每个zipfile中包含id,user_id,title,content,create_at,updated_at,res_short,res_long。total表示前端文件搜索结果的总数。
 
@@ -1471,3 +1561,26 @@
     接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token，在Body，raw格式给出json类型数据包含content。在接口处提供需要删除的留言的id
 
     返回值：返回留言删除成功信息
+
+- ## 查找用户相关
+
+  - **接口地址：/user/name/:id**
+
+    **功能：通过用户名称搜索用户**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token。在接口处提供需要查询的用户名称，即/:id处
+
+    返回值：返回一个user，包含被搜索用户的信息
+
+  - **接口地址：/user/email/:id**
+
+    **功能：通过用户的邮箱搜索用户**
+
+    **方法：GET**
+
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token。在接口处提供需要查询的用户邮箱，即/:id处
+
+    返回值：返回一个user，包含被搜索用户的信息
+

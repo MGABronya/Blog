@@ -129,7 +129,7 @@ func (f FileController) Download(ctx *gin.Context) {
 		util.IncrByZ(4, "H", strconv.Itoa(int(pfile.UserId)), 20)
 	}
 
-	fileName := id + "zip"
+	fileName := id + ".zip"
 
 	filePath := "./distzip/" + fileName
 

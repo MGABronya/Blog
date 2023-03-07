@@ -48,11 +48,11 @@ func (s FileSearchController) Show(ctx *gin.Context) {
 	var zipfiles []model.ZipFile
 
 	// TODO 模糊匹配
-	s.DB.Where("(visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,comment,res_long,res_short) against('?*' in boolean mode)", users, usera.ID, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
+	s.DB.Where("(visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", users, usera.ID, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("(visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,comment,res_long,res_short) against('?*' in boolean mode)", users, usera.ID, text).Model(model.ZipFile{}).Count(&total)
+	s.DB.Where("(visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", users, usera.ID, text+"*").Model(model.ZipFile{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"zipfiles": zipfiles, "total": total}, "成功")
@@ -85,11 +85,11 @@ func (s FileSearchController) ShowUser(ctx *gin.Context) {
 	var zipfiles []model.ZipFile
 
 	// TODO 模糊匹配
-	s.DB.Where("visible < ? and user_id = ? and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
+	s.DB.Where("visible < ? and user_id = ? and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("visible < ? and user_id = ? and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, text).Model(model.ZipFile{}).Count(&total)
+	s.DB.Where("visible < ? and user_id = ? and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, text+"*").Model(model.ZipFile{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"zipfiles": zipfiles, "total": total}, "成功")
@@ -131,11 +131,11 @@ func (s FileSearchController) ShowWithLabelInter(ctx *gin.Context) {
 	var zipfiles []model.ZipFile
 
 	// TODO 模糊匹配
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", zipfileIds, users, usera.ID, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
+	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", zipfileIds, users, usera.ID, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", zipfileIds, users, usera.ID, text).Model(model.ZipFile{}).Count(&total)
+	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", zipfileIds, users, usera.ID, text+"*").Model(model.ZipFile{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"zipfiles": zipfiles, "total": total}, "成功")
@@ -186,11 +186,11 @@ func (s FileSearchController) ShowWithLabelInterUser(ctx *gin.Context) {
 	var zipfiles []model.ZipFile
 
 	// TODO 模糊匹配
-	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, zipfileIds, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
+	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, zipfileIds, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, zipfileIds, text).Model(model.ZipFile{}).Count(&total)
+	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, zipfileIds, text+"*").Model(model.ZipFile{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"zipfiles": zipfiles, "total": total}, "成功")
@@ -232,11 +232,11 @@ func (s FileSearchController) ShowWithLabelUnion(ctx *gin.Context) {
 	var zipfiles []model.ZipFile
 
 	// TODO 模糊匹配
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,comment,res_long,res_short) against('?*' in boolean mode)", zipfileIds, users, usera.ID, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
+	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", zipfileIds, users, usera.ID, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,comment,res_long,res_short) against('?*' in boolean mode)", zipfileIds, users, usera.ID, text).Model(model.ZipFile{}).Count(&total)
+	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", zipfileIds, users, usera.ID, text+"*").Model(model.ZipFile{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"zipfiles": zipfiles, "total": total}, "成功")
@@ -287,11 +287,11 @@ func (s FileSearchController) ShowWithLabelUnionUser(ctx *gin.Context) {
 	var zipfiles []model.ZipFile
 
 	// TODO 模糊匹配
-	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, zipfileIds, text).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
+	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, zipfileIds, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&zipfiles)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against('?*' in boolean mode)", level, userId, zipfileIds, text).Model(model.ZipFile{}).Count(&total)
+	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, zipfileIds, text+"*").Model(model.ZipFile{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"zipfiles": zipfiles, "total": total}, "成功")
