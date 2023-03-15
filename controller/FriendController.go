@@ -96,6 +96,12 @@ func (f FriendController) Applying(ctx *gin.Context) {
 		return
 	}
 
+	// TODO 查看是否为用户自己
+	if userb.ID == usera.ID {
+		response.Fail(ctx, nil, "不能添加自己为好友哦")
+		return
+	}
+
 	// TODO 查看用户是否已经为好友
 	if util.IsS(4, "Fr"+strconv.Itoa(int(usera.ID)), userId) {
 		response.Fail(ctx, nil, "已经是好友了")
