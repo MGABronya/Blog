@@ -30,7 +30,7 @@ func LabelRoutes(r *gin.Engine) *gin.Engine {
 	// TODO 查看文章标签
 	articleLabelRoutes.GET("/show/:id", articleLabelController.Show)
 
-	// TODO 创建文章标签
+	// TODO 创建文章标签  
 	articleLabelRoutes.POST("/create/:id", articleLabelController.Create)
 
 	// TODO 删除文章标签

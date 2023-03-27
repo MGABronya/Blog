@@ -280,7 +280,7 @@ func Recomment() {
 		// TODO 用户推荐
 		for user := range userUnion {
 			score := util.ScoreZ(4, "H", user)
-			util.AddZ(4, "R"+userId, user, score*(1.0+0.01*articleUnion[user]))
+			util.AddZ(4, "R"+userId, user, score*(1.0+0.01*userUnion[user]))
 		}
 
 	}

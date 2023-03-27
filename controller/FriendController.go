@@ -150,6 +150,7 @@ func (f FriendController) Applied(ctx *gin.Context) {
 		// TODO 删除原先在申请列表里的位置
 		util.RemS(4, "Frag"+userId, strconv.Itoa(int(usera.ID)))
 		response.Fail(ctx, nil, "已经是好友了")
+		return
 	}
 
 	// TODO 删除原先在被申请列表中的位置
