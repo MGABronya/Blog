@@ -23,6 +23,7 @@ type IFriendController interface {
 	ShowApplying(ctx *gin.Context) // 查看申请列表
 	Applying(ctx *gin.Context)     // 发送好友申请
 	Applied(ctx *gin.Context)      // 接受好友申请
+	Refused(ctx *gin.Context)      // 拒绝好友申请
 	Delete(ctx *gin.Context)       // 删除好友
 	ShowArticles(ctx *gin.Context) // 查看好友圈内文章
 	ShowPosts(ctx *gin.Context)    // 查看好友圈内贴子
@@ -132,12 +133,22 @@ func (f FriendController) Applied(ctx *gin.Context) {
 
 	// TODO 查看用户是否存在
 	if f.DB.Where("id = ?", ctx.Params.ByName("id")).First(&userb).Error != nil {
+		// TODO 删除原先在被申请列表中的位置
+		util.RemS(4, "Frad"+strconv.Itoa(int(usera.ID)), userId)
+
+		// TODO 删除原先在申请列表里的位置
+		util.RemS(4, "Frag"+userId, strconv.Itoa(int(usera.ID)))
 		response.Fail(ctx, nil, "用户不存在")
 		return
 	}
 
 	// TODO 查看用户是否已经为好友
 	if util.IsS(4, "Fr"+strconv.Itoa(int(usera.ID)), userId) {
+		// TODO 删除原先在被申请列表中的位置
+		util.RemS(4, "Frad"+strconv.Itoa(int(usera.ID)), userId)
+
+		// TODO 删除原先在申请列表里的位置
+		util.RemS(4, "Frag"+userId, strconv.Itoa(int(usera.ID)))
 		response.Fail(ctx, nil, "已经是好友了")
 	}
 
@@ -154,6 +165,27 @@ func (f FriendController) Applied(ctx *gin.Context) {
 	util.SetS(4, "Fr"+userId, strconv.Itoa(int(usera.ID)))
 
 	response.Success(ctx, nil, "接受成功")
+}
+
+// @title    Refused
+// @description   拒绝好友申请
+// @auth      MGAronya（张健）       2022-9-16 12:31
+// @param    ctx *gin.Context       接收一个上下文
+// @return   void
+func (f FriendController) Refused(ctx *gin.Context) {
+
+	tuser, _ := ctx.Get("user")
+	usera := tuser.(gmodel.User)
+
+	userId := ctx.Params.ByName("id")
+
+	// TODO 删除原先在被申请列表中的位置
+	util.RemS(4, "Frad"+strconv.Itoa(int(usera.ID)), userId)
+
+	// TODO 删除原先在申请列表里的位置
+	util.RemS(4, "Frag"+userId, strconv.Itoa(int(usera.ID)))
+
+	response.Success(ctx, nil, "拒绝成功")
 }
 
 // @title    Delete

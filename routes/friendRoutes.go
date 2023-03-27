@@ -41,6 +41,9 @@ func FriendRoutes(r *gin.Engine) *gin.Engine {
 	// TODO 接受好友申请
 	friendRoutes.PUT("/applied/:id", friendController.Applied)
 
+	// TODO 拒绝好友申请
+	friendRoutes.PUT("/refused/:id", friendController.Refused)
+
 	// TODO 删除好友
 	friendRoutes.DELETE("/delete/:id", friendController.Delete)
 
