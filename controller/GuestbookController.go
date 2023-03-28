@@ -183,7 +183,7 @@ func (g GuestbookController) Update(ctx *gin.Context) {
 	}
 
 	// TODO 更新文章
-	if err := g.DB.Model(&guestbook).Updates(requestGuestbook).Error; err != nil {
+	if err := g.DB.Model(&guestbook).(requestGuestbook).Error; err != nil {
 		response.Fail(ctx, nil, "更新失败")
 		return
 	}
