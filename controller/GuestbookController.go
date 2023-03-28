@@ -173,7 +173,7 @@ func (g GuestbookController) Update(ctx *gin.Context) {
 		return
 	}
 
-	var requestGuestbook vo.CreateCommentRequest
+	var requestGuestbook model.GuestBook
 
 	// TODO 数据验证
 	if err := ctx.ShouldBind(&requestGuestbook); err != nil {
@@ -183,7 +183,7 @@ func (g GuestbookController) Update(ctx *gin.Context) {
 	}
 
 	// TODO 更新文章
-	if err := g.DB.Model(&guestbook).(requestGuestbook).Error; err != nil {
+	if err := g.DB.Model(&guestbook).Updates(requestGuestbook).Error; err != nil {
 		response.Fail(ctx, nil, "更新失败")
 		return
 	}

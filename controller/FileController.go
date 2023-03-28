@@ -8,7 +8,6 @@ import (
 	Interface "Blog/interface"
 	"Blog/model"
 	"Blog/util"
-	"Blog/vo"
 	"fmt"
 	"ginEssential/common"
 	gmodel "ginEssential/model"
@@ -412,7 +411,7 @@ func (f FileController) Update(ctx *gin.Context) {
 	// TODO 获取path中的id
 	Id := ctx.Params.ByName("id")
 
-	var requestZipfile vo.ZipFileRequest
+	var requestZipfile model.ZipFile
 	// TODO 数据验证
 	if err := ctx.ShouldBind(&requestZipfile); err != nil {
 		log.Print(err.Error())

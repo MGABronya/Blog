@@ -106,7 +106,7 @@ func (c CommentController) Create(ctx *gin.Context) {
 // @param    ctx *gin.Context       接收一个上下文
 // @return   void
 func (c CommentController) Update(ctx *gin.Context) {
-	var requestComment vo.CreateCommentRequest
+	var requestComment model.Comment
 	// TODO 数据验证
 	if err := ctx.ShouldBind(&requestComment); err != nil {
 		log.Print(err.Error())
