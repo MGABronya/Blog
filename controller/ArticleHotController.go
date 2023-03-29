@@ -66,7 +66,7 @@ func (h ArticleHotController) Ranking(ctx *gin.Context) {
 	pageNum, _ := strconv.Atoi(ctx.DefaultQuery("pageNum", "1"))
 	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("pageSize", "20"))
 
-	articles := util.RangeZ(1, "H", int64(pageNum-1)*int64(pageSize), int64(pageNum-1)*int64(pageSize)+int64(pageSize)-1)
+	articles := util.RangeWithScoreZ(1, "H", int64(pageNum-1)*int64(pageSize), int64(pageNum-1)*int64(pageSize)+int64(pageSize)-1)
 	total := util.CardZ(1, "H")
 
 	response.Success(ctx, gin.H{"articles": articles, "total": total}, "查看文章排行成功")

@@ -157,7 +157,7 @@ func (h FileHotController) Ranking(ctx *gin.Context) {
 	pageNum, _ := strconv.Atoi(ctx.DefaultQuery("pageNum", "1"))
 	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("pageSize", "20"))
 
-	zipfiles := util.RangeZ(2, "H", int64(pageNum-1)*int64(pageSize), int64(pageNum-1)*int64(pageSize)+int64(pageSize)-1)
+	zipfiles := util.RangeWithScoreZ(2, "H", int64(pageNum-1)*int64(pageSize), int64(pageNum-1)*int64(pageSize)+int64(pageSize)-1)
 	total := util.CardZ(2, "H")
 
 	response.Success(ctx, gin.H{"zipfiles": zipfiles, "total": total}, "查看前端文件排行成功")
