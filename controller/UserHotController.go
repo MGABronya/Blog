@@ -46,7 +46,7 @@ func (h UserHotController) Ranking(ctx *gin.Context) {
 	pageNum, _ := strconv.Atoi(ctx.DefaultQuery("pageNum", "1"))
 	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("pageSize", "20"))
 
-	users := util.RangeZ(4, "H", int64(pageNum)*int64(pageSize), int64(pageNum)*int64(pageSize)+int64(pageSize)-1)
+	users := util.RangeZ(4, "H", int64(pageNum-1)*int64(pageSize), int64(pageNum-1)*int64(pageSize)+int64(pageSize)-1)
 	total := util.CardZ(4, "H")
 
 	response.Success(ctx, gin.H{"users": users, "total": total}, "查看用户排行成功")
@@ -114,7 +114,7 @@ func (h UserHotController) Recomment(ctx *gin.Context) {
 	pageNum, _ := strconv.Atoi(ctx.DefaultQuery("pageNum", "1"))
 	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("pageSize", "20"))
 
-	users := util.RangeZ(4, "R"+strconv.Itoa(int(user.ID)), int64(pageNum)*int64(pageSize), int64(pageNum)*int64(pageSize)+int64(pageSize)-1)
+	users := util.RangeZ(4, "R"+strconv.Itoa(int(user.ID)), int64(pageNum-1)*int64(pageSize), int64(pageNum-1)*int64(pageSize)+int64(pageSize)-1)
 
 	total := util.CardZ(4, "R"+strconv.Itoa(int(user.ID)))
 

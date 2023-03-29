@@ -97,7 +97,7 @@ func (h PostHotController) Ranking(ctx *gin.Context) {
 	pageNum, _ := strconv.Atoi(ctx.DefaultQuery("pageNum", "1"))
 	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("pageSize", "20"))
 
-	posts := util.RangeZ(3, "H", int64(pageNum)*int64(pageSize), int64(pageNum)*int64(pageSize)+int64(pageSize)-1)
+	posts := util.RangeZ(3, "H", int64(pageNum-1)*int64(pageSize), int64(pageNum-1)*int64(pageSize)+int64(pageSize)-1)
 	total := util.CardZ(3, "H")
 
 	response.Success(ctx, gin.H{"posts": posts, "total": total}, "查看帖子排行成功")
@@ -116,7 +116,7 @@ func (h PostHotController) Recomment(ctx *gin.Context) {
 	pageNum, _ := strconv.Atoi(ctx.DefaultQuery("pageNum", "1"))
 	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("pageSize", "20"))
 
-	posts := util.RangeZ(3, "R"+strconv.Itoa(int(user.ID)), int64(pageNum)*int64(pageSize), int64(pageNum)*int64(pageSize)+int64(pageSize)-1)
+	posts := util.RangeZ(3, "R"+strconv.Itoa(int(user.ID)), int64(pageNum-1)*int64(pageSize), int64(pageNum-1)*int64(pageSize)+int64(pageSize)-1)
 
 	total := util.CardZ(3, "R"+strconv.Itoa(int(user.ID)))
 
