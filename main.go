@@ -43,10 +43,6 @@ func main() {
 	r = CollectRoute(r)
 	port := viper.GetString("server.port")
 
-	if port != "" {
-		panic(r.Run(":" + port))
-	}
-
 	// TODO 定时下降热度
 	go func() {
 		for {
@@ -92,7 +88,9 @@ func main() {
 		}
 	}()
 
-	panic(r.Run())
+	if port != "" {
+		panic(r.Run(":" + port))
+	}
 }
 
 // @title    InitConfig
@@ -245,7 +243,9 @@ func Recomment() {
 		for article := range articleUnion {
 			var a gmodel.Article
 			// TODO 查看是否有权限
-			db.Where("id = ?", article).First(&a)
+			if db.Where("id = ?", article).First(&a).Error != nil {
+				continue
+			}
 			if a.UserId != user.ID && (a.Visible == 3 || (a.Visible == 2 && !util.IsS(4, "Fr"+strconv.Itoa(int(user.ID)), strconv.Itoa(int(a.UserId))))) {
 				continue
 			}
@@ -257,7 +257,9 @@ func Recomment() {
 		for post := range postUnion {
 			var p gmodel.Post
 			// TODO 查看是否有权限
-			db.Where("id = ?", post).First(&p)
+			if db.Where("id = ?", post).First(&p).Error != nil {
+				continue
+			}
 			if p.UserId != user.ID && (p.Visible == 3 || (p.Visible == 2 && !util.IsS(4, "Fr"+strconv.Itoa(int(user.ID)), strconv.Itoa(int(p.UserId))))) {
 				continue
 			}
@@ -269,7 +271,9 @@ func Recomment() {
 		for zipfile := range zipfileUnion {
 			var z model.ZipFile
 			// TODO 查看是否有权限
-			db.Where("id = ?", zipfile).First(z)
+			if db.Where("id = ?", zipfile).First(&z).Error != nil {
+				continue
+			}
 			if z.UserId != user.ID && (z.Visible == 3 || (z.Visible == 2 && !util.IsS(4, "Fr"+strconv.Itoa(int(user.ID)), strconv.Itoa(int(z.UserId))))) {
 				continue
 			}
