@@ -103,8 +103,7 @@ func (p PostLabelController) Delete(ctx *gin.Context) {
 
 	var post model.Post
 
-	var requestLabel = vo.LabelRequest{}
-	ctx.Bind(&requestLabel)
+	label := ctx.Query("label")
 
 	// TODO 查看帖子是否存在
 	if p.DB.Where("id = ?", postId).First(&post).Error != nil {
@@ -118,22 +117,22 @@ func (p PostLabelController) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if !util.IsS(3, "aL"+postId, requestLabel.Label) {
+	if !util.IsS(3, "aL"+postId, label) {
 		response.Fail(ctx, nil, "标签未设置")
 		return
 	}
 
 	// TODO 用户标签分数下降
-	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, -30)
-	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label) <= 0 {
-		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label)
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, -30)
+	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), label) <= 0 {
+		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), label)
 	}
 
-	util.RemS(3, "aL"+postId, requestLabel.Label)
-	util.RemS(3, "La"+requestLabel.Label, postId)
+	util.RemS(3, "aL"+postId, label)
+	util.RemS(3, "La"+label, postId)
 
-	if util.CardS(3, "La"+requestLabel.Label) == 0 {
-		util.Del(3, "La"+requestLabel.Label)
+	if util.CardS(3, "La"+label) == 0 {
+		util.Del(3, "La"+label)
 	}
 
 	response.Success(ctx, nil, "删除成功")

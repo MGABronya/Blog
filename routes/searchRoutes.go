@@ -32,6 +32,8 @@ func SearchRoutes(r *gin.Engine) *gin.Engine {
 	// TODO 按文本搜索指定用户的文章
 	searchRoutes.GET("/article/:text/:id", articleSearchController.ShowUser)
 
+	articleSearchController.ShowWithLabelInterUser()
+
 	// TODO 按文本和标签交集搜索文章
 	searchRoutes.GET("/article/inter/:text", articleSearchController.ShowWithLabelInter)
 

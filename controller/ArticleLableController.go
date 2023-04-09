@@ -103,8 +103,7 @@ func (a ArticleLabelController) Delete(ctx *gin.Context) {
 
 	var article model.Article
 
-	var requestLabel = vo.LabelRequest{}
-	ctx.Bind(&requestLabel)
+	label := ctx.Query("label")
 
 	// TODO 查看文章是否存在
 	if a.DB.Where("id = ?", articleId).First(&article).Error != nil {
@@ -118,22 +117,22 @@ func (a ArticleLabelController) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if !util.IsS(1, "aL"+articleId, requestLabel.Label) {
+	if !util.IsS(1, "aL"+articleId, label) {
 		response.Fail(ctx, nil, "标签未设置")
 		return
 	}
 
 	// TODO 用户标签分数下降
-	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, -30)
-	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label) <= 0 {
-		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label)
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, -30)
+	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), label) <= 0 {
+		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), label)
 	}
 
-	util.RemS(1, "aL"+articleId, requestLabel.Label)
-	util.RemS(1, "La"+requestLabel.Label, articleId)
+	util.RemS(1, "aL"+articleId, label)
+	util.RemS(1, "La"+label, articleId)
 
-	if util.CardS(1, "La"+requestLabel.Label) == 0 {
-		util.Del(1, "La"+requestLabel.Label)
+	if util.CardS(1, "La"+label) == 0 {
+		util.Del(1, "La"+label)
 	}
 
 	response.Success(ctx, nil, "删除成功")

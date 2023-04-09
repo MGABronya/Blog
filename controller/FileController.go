@@ -206,7 +206,7 @@ func (f FileController) Delete(ctx *gin.Context) {
 	util.Del(2, "M"+id)
 
 	// TODO 更新热度
-	util.IncrByZ(4, "H", strconv.Itoa(int(user.ID)), -util.ScoreZ(2, "H", id))
+	util.IncrByZ(4, "H", strconv.Itoa(int(pfile.UserId)), -util.ScoreZ(2, "H", id))
 	util.RemZ(2, "H", id)
 
 	// TODO 数据验证
@@ -317,7 +317,7 @@ func (f FileController) FileListOthers(ctx *gin.Context) {
 	f.DB.Where("user_id = ? and visible < ?", user.ID, level).Model(model.ZipFile{}).Count(&total)
 
 	// TODO 返回数据
-	response.Success(ctx, gin.H{"comments": zipfiles, "total": total}, "成功")
+	response.Success(ctx, gin.H{"zipfiles": zipfiles, "total": total}, "成功")
 }
 
 // @title    Show

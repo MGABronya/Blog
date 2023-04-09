@@ -104,8 +104,7 @@ func (f FileLabelController) Delete(ctx *gin.Context) {
 
 	var file model.ZipFile
 
-	var requestLabel = vo.LabelRequest{}
-	ctx.Bind(&requestLabel)
+	label := ctx.Query("label")
 
 	// TODO 查看文件是否存在
 	if f.DB.Where("id = ?", fileId).First(&file).Error != nil {
@@ -119,22 +118,22 @@ func (f FileLabelController) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if !util.IsS(2, "aL"+fileId, requestLabel.Label) {
+	if !util.IsS(2, "aL"+fileId, label) {
 		response.Fail(ctx, nil, "标签未设置")
 		return
 	}
 
 	// TODO 用户标签分数下降
-	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, -30)
-	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label) <= 0 {
-		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label)
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, -30)
+	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), label) <= 0 {
+		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), label)
 	}
 
-	util.RemS(2, "aL"+fileId, requestLabel.Label)
-	util.RemS(2, "La"+requestLabel.Label, fileId)
+	util.RemS(2, "aL"+fileId, label)
+	util.RemS(2, "La"+label, fileId)
 
-	if util.CardS(2, "La"+requestLabel.Label) == 0 {
-		util.Del(2, "La"+requestLabel.Label)
+	if util.CardS(2, "La"+label) == 0 {
+		util.Del(2, "La"+label)
 	}
 
 	response.Success(ctx, nil, "删除成功")

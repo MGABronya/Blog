@@ -123,8 +123,7 @@ func (u UserLabelController) DeleteLabel(ctx *gin.Context) {
 
 	var user model.User
 
-	var requestLabel = vo.LabelRequest{}
-	ctx.Bind(&requestLabel)
+	label := ctx.Query("label")
 
 	// TODO 查看用户是否存在
 	if u.DB.Where("id = ?", userId).First(&user).Error != nil {
@@ -138,8 +137,8 @@ func (u UserLabelController) DeleteLabel(ctx *gin.Context) {
 		return
 	}
 
-	util.RemS(4, "aL"+userId, requestLabel.Label)
-	util.RemS(4, "La"+requestLabel.Label, userId)
+	util.RemS(4, "aL"+userId, label)
+	util.RemS(4, "La"+label, userId)
 	response.Success(ctx, nil, "删除成功")
 }
 
