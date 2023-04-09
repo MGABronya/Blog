@@ -89,25 +89,24 @@ func (u UserLabelController) Delete(ctx *gin.Context) {
 	tuser, _ := ctx.Get("user")
 	user := tuser.(model.User)
 
-	var requestLabel = vo.LabelRequest{}
-	ctx.Bind(&requestLabel)
+	label := ctx.Query("label")
 
-	if !util.IsS(4, "aL"+strconv.Itoa(int(user.ID)), requestLabel.Label) {
+	if !util.IsS(4, "aL"+strconv.Itoa(int(user.ID)), label) {
 		response.Fail(ctx, nil, "标签未设置")
 		return
 	}
 
-	util.RemS(4, "aL"+strconv.Itoa(int(user.ID)), requestLabel.Label)
-	util.RemS(4, "La"+requestLabel.Label, strconv.Itoa(int(user.ID)))
+	util.RemS(4, "aL"+strconv.Itoa(int(user.ID)), label)
+	util.RemS(4, "La"+label, strconv.Itoa(int(user.ID)))
 
-	if util.CardS(4, "La"+requestLabel.Label) == 0 {
-		util.Del(4, "La"+requestLabel.Label)
+	if util.CardS(4, "La"+label) == 0 {
+		util.Del(4, "La"+label)
 	}
 
 	// TODO 用户标签分数下降
-	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label, -200)
-	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label) <= 0 {
-		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), requestLabel.Label)
+	util.IncrByZ(4, "L"+strconv.Itoa(int(user.ID)), label, -200)
+	if util.ScoreZ(4, "L"+strconv.Itoa(int(user.ID)), label) <= 0 {
+		util.RemZ(4, "L"+strconv.Itoa(int(user.ID)), label)
 	}
 
 	response.Success(ctx, nil, "删除成功")

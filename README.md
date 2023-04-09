@@ -354,7 +354,7 @@
 
     **方法：DELETE**
 
-    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token。在Body	中，raw格式提供json包含一个label。
+    接收参数：Authorization中的Bearer Token中提供注册、登录时给出的token。在Params处提供label。
 
     返回值：返回删除成功
 

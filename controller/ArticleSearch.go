@@ -130,11 +130,16 @@ func (s ArticleSearchController) ShowWithLabelInter(ctx *gin.Context) {
 	var articles []gmodel.Article
 
 	// TODO 模糊匹配
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", articleIds, users, usera.ID, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&articles)
+	db := common.GetDB()
+	if text != "" {
+		db = db.Where("match(title,content,res_long,res_short) against(? in boolean mode)", text+"*")
+	}
+	db = db.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?)", articleIds, users, usera.ID)
+	db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&articles)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", articleIds, users, usera.ID, text+"*").Model(gmodel.Article{}).Count(&total)
+	db.Model(gmodel.Article{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"articles": articles, "total": total}, "成功")
@@ -230,12 +235,19 @@ func (s ArticleSearchController) ShowWithLabelUnion(ctx *gin.Context) {
 
 	var articles []gmodel.Article
 
+	db := common.GetDB()
+
+	if text != "" {
+		db = db.Where("match(title,content,res_long,res_short) against(? in boolean mode)", text+"*")
+	}
+
 	// TODO 模糊匹配
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", articleIds, users, usera.ID, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&articles)
+	db = db.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?)", articleIds, users, usera.ID)
+	db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&articles)
 
 	// TODO 查看查询总数
 	var total int64
-	s.DB.Where("id in (?) and (visible = 2 and user_id in (?) or visible = 1 or visible = 3 and user_id = ?) and match(title,content,res_long,res_short) against(? in boolean mode)", articleIds, users, usera.ID, text+"*").Model(gmodel.Article{}).Count(&total)
+	db.Model(gmodel.Article{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"articles": articles, "total": total}, "成功")
@@ -285,12 +297,18 @@ func (s ArticleSearchController) ShowWithLabelUnionUser(ctx *gin.Context) {
 
 	var articles []gmodel.Article
 
+	db := common.GetDB()
+	if text != "" {
+		db = db.Where("match(title,content,res_long,res_short) against(? in boolean mode)", text+"*")
+	}
+
 	// TODO 模糊匹配
-	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, articleIds, text+"*").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&articles)
+	db = db.Where("visible < ? and user_id = ? and id in (?)", level, userId, articleIds)
 
 	// TODO 查看查询总数
+	db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&articles)
 	var total int64
-	s.DB.Where("visible < ? and user_id = ? and id in (?) and match(title,content,res_long,res_short) against(? in boolean mode)", level, userId, articleIds, text+"*").Model(gmodel.Article{}).Count(&total)
+	db.Model(gmodel.Article{}).Count(&total)
 
 	// TODO 返回数据
 	response.Success(ctx, gin.H{"articles": articles, "total": total}, "成功")
